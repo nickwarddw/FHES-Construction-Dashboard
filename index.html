@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fox Hill Elementary School Building Project — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#003262;--navy-dark:#00244a;--navy-light:#0a4a8a;--accent:#c4a35a;--accent-light:#e8d5a0;--white:#fff;--off-white:#f4f5f7;--gray-50:#f8f9fb;--gray-100:#eceef1;--gray-200:#d4d8de;--gray-300:#b8bec8;--gray-400:#8d95a0;--gray-600:#5a6270;--gray-800:#2d3340;--green:#1a8754;--green-bg:#e6f4ed;--amber:#b8860b;--amber-bg:#fef3d0;--blue-bg:#e1ecf7;--red:#c0392b;--red-bg:#fce4e4}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'DM Sans',sans-serif;background:var(--off-white);color:var(--gray-800);line-height:1.55;-webkit-font-smoothing:antialiased}
+.dashboard{max-width:1240px;margin:0 auto;padding:32px 24px 64px}
+.loading-overlay{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:400px;gap:16px}
+.spinner{width:40px;height:40px;border:4px solid var(--gray-100);border-top-color:var(--navy);border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:.9rem;color:var(--gray-400)}.error-msg{background:var(--red-bg);color:var(--red);padding:24px 32px;border-radius:14px;font-size:.92rem;text-align:center;line-height:1.7}
+.header{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-dark) 60%,#001a33 100%);border-radius:18px;padding:44px 48px 40px;color:var(--white);position:relative;overflow:hidden;margin-bottom:28px}.header::before{content:'';position:absolute;top:-60%;right:-12%;width:560px;height:560px;background:radial-gradient(circle,rgba(196,163,90,.10) 0%,transparent 70%);pointer-events:none}.header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--accent),var(--accent-light),var(--accent))}.header-top{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;flex-wrap:wrap}.header h1{font-family:'DM Serif Display',serif;font-size:2.1rem;font-weight:400;letter-spacing:-.01em;line-height:1.15}.header h1 span{display:block;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:8px}.updated{font-size:.78rem;color:rgba(255,255,255,.50);margin-top:16px;font-weight:500}.header-badges{display:flex;gap:14px;flex-shrink:0;flex-wrap:wrap}.header-badge{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.10);border-radius:12px;padding:16px 22px;text-align:right;min-width:150px}.header-badge .label{font-size:.68rem;letter-spacing:.10em;text-transform:uppercase;color:var(--accent-light);margin-bottom:4px}.header-badge .value{font-family:'DM Serif Display',serif;font-size:1.55rem;color:var(--white)}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}.stat-card{background:var(--white);border-radius:14px;padding:24px 26px;border:1px solid var(--gray-100);transition:box-shadow .25s;text-decoration:none;display:block;color:inherit}.stat-card:hover{box-shadow:0 6px 24px rgba(0,50,98,.07)}a.stat-card{cursor:pointer}.stat-card .label{font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--gray-400);margin-bottom:8px}.stat-card .value{font-family:'DM Serif Display',serif;font-size:1.55rem;color:var(--navy)}.stat-card .sub{font-size:.78rem;color:var(--gray-400);margin-top:5px}
+.status-pill{display:inline-flex;align-items:center;gap:5px;font-size:.75rem;font-weight:600;padding:4px 12px;border-radius:6px;white-space:nowrap}.status-pill::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}.status-pill.complete{background:var(--green-bg);color:var(--green)}.status-pill.in-progress{background:var(--amber-bg);color:var(--amber)}.status-pill.upcoming{background:var(--gray-100);color:var(--gray-400)}.status-pill.pre-bid{background:var(--blue-bg);color:var(--navy-light)}.status-pill.on-schedule{background:var(--green-bg);color:var(--green)}.status-pill.on-budget{background:var(--green-bg);color:var(--green)}.status-pill.below-goal{background:var(--red-bg);color:var(--red)}.status-pill.meeting-goal,.status-pill.above-goal{background:var(--green-bg);color:var(--green)}
+.section{background:var(--white);border-radius:16px;border:1px solid var(--gray-100);margin-bottom:24px;overflow:hidden}.section-header{display:flex;align-items:center;justify-content:space-between;padding:22px 28px 18px;border-bottom:1px solid var(--gray-100);gap:12px;flex-wrap:wrap}.section-header h2{font-family:'DM Serif Display',serif;font-size:1.18rem;font-weight:400;color:var(--navy)}.section-header .pill{font-size:.68rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:5px 14px;border-radius:99px;background:var(--blue-bg);color:var(--navy);white-space:nowrap}.section-body{padding:22px 28px 28px}.sub-title{font-family:'DM Serif Display',serif;font-size:.95rem;color:var(--navy);margin:28px 0 14px;padding-top:20px;border-top:1px solid var(--gray-100)}.sub-title:first-child,.sub-title:first-of-type{margin-top:0;border-top:none;padding-top:0}
+.donut-section{display:flex;align-items:center;gap:40px;flex-wrap:wrap;justify-content:center}.donut-container{width:220px;height:220px;flex-shrink:0}.donut-legend{display:flex;flex-direction:column;gap:10px;min-width:200px}.legend-item{display:flex;align-items:center;gap:10px;font-size:.84rem}.legend-swatch{width:14px;height:14px;border-radius:3px;flex-shrink:0}.legend-label{color:var(--gray-600)}.legend-value{font-weight:700;color:var(--gray-800);margin-left:40px;font-variant-numeric:tabular-nums}.legend-type{font-size:.70rem;font-weight:600;color:var(--accent);margin-left:6px;font-style:italic}
+.data-table{width:100%;border-collapse:collapse;font-size:.86rem}.data-table thead th{text-align:left;font-size:.70rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--gray-400);padding:0 12px 12px;border-bottom:2px solid var(--gray-100);white-space:nowrap}.data-table thead th:not(:first-child){text-align:right}.data-table tbody td{padding:14px 12px;border-bottom:1px solid var(--gray-100);vertical-align:middle}.data-table tbody td:not(:first-child){text-align:right;font-variant-numeric:tabular-nums}.data-table tbody tr:last-child td{border-bottom:none}.data-table .row-total td{font-weight:700;color:var(--navy);border-top:2px solid var(--navy);border-bottom:none;padding-top:16px}
+.progress-track{width:100%;height:8px;background:var(--gray-100);border-radius:99px;overflow:hidden}.progress-fill{height:100%;border-radius:99px;transition:width 1s cubic-bezier(.22,1,.36,1)}.fill-navy{background:var(--navy)}.fill-green{background:var(--green)}.fill-amber{background:var(--amber)}.fill-accent{background:var(--accent)}
+.phase-list{display:flex;flex-direction:column;gap:2px}.phase-item{display:grid;grid-template-columns:220px 1fr 140px 80px;align-items:center;gap:16px;padding:13px 0;border-bottom:1px solid var(--gray-100)}.phase-item:last-child{border-bottom:none}.phase-name{font-weight:600;font-size:.86rem;color:var(--gray-800)}.phase-dates{font-size:.78rem;color:var(--gray-400);text-align:right}.phase-pct{font-size:.82rem;font-weight:700;color:var(--navy);text-align:right;font-variant-numeric:tabular-nums}
+.act-table{width:100%;border-collapse:collapse;font-size:.84rem}.act-table thead th{text-align:left;font-size:.68rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--gray-400);padding:0 10px 10px;border-bottom:2px solid var(--gray-100)}.act-table thead th:nth-child(n+2){text-align:center}.act-table thead th:last-child{text-align:right}.act-table tbody td{padding:14px 10px;border-bottom:1px solid var(--gray-100);vertical-align:middle}.act-table tbody td:nth-child(2),.act-table tbody td:nth-child(3){text-align:center;font-variant-numeric:tabular-nums;font-size:.82rem;color:var(--gray-600)}.act-table tbody td:nth-child(4){text-align:center}.act-table tbody td:last-child{text-align:right;font-weight:700;color:var(--navy);font-variant-numeric:tabular-nums}.act-table tbody tr:last-child td{border-bottom:none}.act-name{font-weight:600;color:var(--gray-800)}
+.qa-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.qa-card{border:1px solid var(--gray-100);border-radius:12px;padding:20px 22px}.qa-card .qa-label{font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--gray-400);margin-bottom:6px}.qa-card .qa-total{font-family:'DM Serif Display',serif;font-size:1.4rem;color:var(--navy);margin-bottom:8px}.qa-row{display:flex;justify-content:space-between;font-size:.82rem;padding:3px 0}.qa-row .open-label{color:var(--gray-600)}.qa-row .open-val{font-weight:600;color:var(--gray-800)}
+.mbe-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.mbe-card{border:1px solid var(--gray-100);border-radius:12px;padding:20px 22px}.mbe-card .mbe-type{font-family:'DM Serif Display',serif;font-size:1.05rem;color:var(--navy);margin-bottom:10px}.mbe-row{display:flex;justify-content:space-between;font-size:.82rem;padding:4px 0;color:var(--gray-600)}.mbe-row .mbe-val{font-weight:600;color:var(--gray-800)}.mbe-card .mbe-status{margin-top:10px}
+.contingency-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}.contingency-card{border:1px solid var(--gray-100);border-radius:12px;padding:20px 22px}.contingency-card .c-label{font-size:.78rem;font-weight:600;color:var(--gray-800);margin-bottom:4px}.contingency-card .c-value{font-family:'DM Serif Display',serif;font-size:1.2rem;color:var(--navy);margin-bottom:3px}.contingency-card .c-sub{font-size:.76rem;color:var(--gray-400);margin-bottom:8px}
+.highlights-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}.highlight-card{border:1px solid var(--gray-100);border-radius:12px;padding:28px 28px;min-height:180px}.highlight-card .h-label{font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px}.highlight-card .h-label.moment{color:var(--accent)}.highlight-card .h-label.challenge{color:var(--amber)}.highlight-card .h-label.positive{color:var(--green)}.highlight-card p{font-size:.88rem;color:var(--gray-600);line-height:1.7}
+.links-row{display:flex;gap:14px;flex-wrap:wrap}.link-btn{display:inline-flex;align-items:center;gap:8px;background:var(--navy);color:var(--white);text-decoration:none;padding:12px 22px;border-radius:10px;font-size:.84rem;font-weight:600;transition:background .2s}.link-btn:hover{background:var(--navy-light)}.link-btn svg{width:16px;height:16px}
+.type-badge{display:inline-block;font-size:.64rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:4px;margin-left:8px;vertical-align:middle}.type-badge.gmp{background:var(--navy);color:var(--white)}.type-badge.soft{background:var(--gray-100);color:var(--gray-600)}
+.footnotes{margin-top:18px;padding-top:14px;border-top:1px solid var(--gray-100);font-size:.76rem;color:var(--gray-400);line-height:1.8}.footnotes strong{color:var(--gray-600);font-weight:600}
+.footer{text-align:center;padding:28px;font-size:.75rem;color:var(--gray-400)}.footer a{color:var(--navy);text-decoration:none}
+.phase-toggle{cursor:pointer;user-select:none}.phase-toggle:hover{background:var(--gray-50)}.phase-toggle .phase-name{display:flex;align-items:center;gap:6px}.phase-toggle .phase-name::before{content:'▶';font-size:.6rem;color:var(--gray-400);transition:transform .25s;display:inline-block;flex-shrink:0}.phase-toggle.open .phase-name::before{transform:rotate(90deg);color:var(--navy)}.phase-dropdown{max-height:0;overflow:hidden;transition:max-height .4s ease;grid-column:1/-1}.phase-dropdown.open{max-height:2000px}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}.anim{animation:fadeUp .5s cubic-bezier(.22,1,.36,1) both}.d1{animation-delay:.06s}.d2{animation-delay:.12s}.d3{animation-delay:.18s}.d4{animation-delay:.24s}.d5{animation-delay:.30s}.d6{animation-delay:.36s}.d7{animation-delay:.42s}.d8{animation-delay:.48s}.d9{animation-delay:.54s}.d10{animation-delay:.60s}
+@media(max-width:960px){.stats-row{grid-template-columns:repeat(2,1fr)}.qa-grid,.mbe-grid,.contingency-grid,.highlights-grid{grid-template-columns:1fr}.phase-item{grid-template-columns:1fr 1fr;gap:8px}}
+@media(max-width:600px){.dashboard{padding:16px 12px 40px}.header{padding:28px 22px 24px;border-radius:12px}.header h1{font-size:1.5rem}.stats-row{grid-template-columns:1fr}.section-body{padding:16px 18px 22px}.data-table,.act-table{font-size:.78rem}.donut-section{flex-direction:column;align-items:flex-start}.phase-item{grid-template-columns:1fr}.header-badges{flex-direction:column}}
+.debug-panel{background:#1a1a2e;color:#0f0;padding:16px;border-radius:8px;margin-bottom:24px;font-family:monospace;font-size:.72rem;white-space:pre-wrap;max-height:400px;overflow-y:auto;display:none}.debug-toggle{background:var(--gray-100);border:none;padding:6px 14px;border-radius:6px;font-size:.72rem;cursor:pointer;color:var(--gray-600);margin-bottom:12px}
+html{scroll-behavior:smooth}
+@media print{
+  .debug-toggle,.debug-panel{display:none!important}
+  body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .dashboard{padding-bottom:0}
+  .stat-card,.qa-card,.mbe-card,.contingency-card,.highlight-card{break-inside:avoid;page-break-inside:avoid}
+  .phase-item,.milestone-item,tr{break-inside:avoid;page-break-inside:avoid}
+  .section-header,.sub-title{break-after:avoid;page-break-after:avoid}
+  .highlight-card p{color:#2d3340!important}
+  .highlight-card .h-label.moment{color:#c4a35a!important}
+  .highlight-card .h-label.challenge{color:#b8860b!important}
+  .highlight-card .h-label.positive{color:#1a8754!important}
+  .highlight-card{border:1px solid #d4d8de!important}
+}
+</style>
+</head>
+<body>
+<div class="dashboard" id="dashboard"><div class="loading-overlay"><div class="spinner"></div><div class="loading-text">Loading dashboard data…</div></div></div>
+<script>
+var SHEET_ID='1tqVn-Z8E1avhYtURo2WJnCHGQj0Ws0RR';
+var debugLog=[];function log(m){debugLog.push('['+new Date().toISOString().substr(11,8)+'] '+m)}
+
+function fetchSheet(tabName){return new Promise(function(resolve,reject){var cb='cb_'+Math.random().toString(36).substr(2,9);var url='https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:json;responseHandler:'+cb+'&sheet='+encodeURIComponent(tabName);window[cb]=function(resp){delete window[cb];if(script.parentNode)script.parentNode.removeChild(script);if(resp.status==='error'){reject(new Error('Sheet error: '+tabName));return}var t=resp.table,rows=[];var nc=t.cols.length;for(var r=0;r<t.rows.length;r++){var row=[];for(var c=0;c<nc;c++){var cell=(t.rows[r].c&&t.rows[r].c[c])?t.rows[r].c[c]:null;if(!cell)row.push({v:null,f:null});else row.push({v:cell.v!==undefined?cell.v:null,f:cell.f||null})}rows.push(row)}log('Loaded: '+tabName+' ('+rows.length+' rows, '+nc+' cols)');resolve(rows)};var script=document.createElement('script');script.src=url;script.onerror=function(){delete window[cb];reject(new Error('Network error: '+tabName))};document.body.appendChild(script)})}
+
+function getNum(c){if(!c)return NaN;if(typeof c.v==='number')return c.v;if(c.v!=null){var p=parseFloat(String(c.v).replace(/[$,%\s]/g,''));if(!isNaN(p))return p}if(c.f){var p2=parseFloat(String(c.f).replace(/[$,%\s]/g,''));if(!isNaN(p2))return p2}return NaN}
+function getStr(c){if(!c)return'';if(c.f)return String(c.f);if(c.v!=null)return String(c.v);return''}
+function getPct(c){if(!c)return 0;if(c.f&&String(c.f).includes('%')){var n=parseFloat(String(c.f).replace('%',''));if(!isNaN(n))return n}var n2=typeof c.v==='number'?c.v:parseFloat(String(c.v));if(isNaN(n2))return 0;if(n2>0&&n2<=1)return n2*100;return n2}
+function fmt$(v){if(isNaN(v))return'—';return'$'+Math.round(v).toLocaleString('en-US')}
+function fmtM(v){if(isNaN(v))return'—';if(Math.abs(v)>=1e9)return'$'+(v/1e9).toFixed(1)+'B';if(Math.abs(v)>=1e6)return'$'+(v/1e6).toFixed(1)+'M';if(Math.abs(v)>=1e3)return'$'+(v/1e3).toFixed(0)+'K';return'$'+Math.round(v).toLocaleString('en-US')}
+function fmtPct(v,d){return v.toFixed(d!==undefined?d:1)+'%'}
+function pCol(p){if(p>=100)return'fill-green';if(p>=40)return'fill-amber';if(p>0)return'fill-accent';return'fill-navy'}
+function sCls(s){if(!s)return'upcoming';var l=s.toLowerCase().trim();if(l==='complete'||l==='completed')return'complete';if(l==='in progress')return'in-progress';if(l==='pre-bid')return'pre-bid';if(l==='on schedule')return'on-schedule';if(l==='on budget')return'on-budget';if(l.includes('below'))return'below-goal';if(l.includes('above')||l.includes('meeting'))return'meeting-goal';return'upcoming'}
+function safe(d,r,c){if(r>=0&&r<d.length&&c>=0&&c<d[r].length)return d[r][c];return null}
+function fmtDate(s){if(!s)return'';try{if(String(s).match(/20\d\d/)){var d=new Date(s);if(!isNaN(d))return(d.getMonth()+1)+'/'+d.getDate()+'/'+(d.getFullYear()%100)}}catch(e){}return String(s)}
+// Search col for label — only used as fallback
+function findRow(rows,label,col){var lbl=label.toLowerCase();for(var i=0;i<rows.length;i++){if(getStr(safe(rows,i,col)).toLowerCase().includes(lbl))return i}return-1}
+
+async function build(){
+var el=document.getElementById('dashboard');
+try{
+// ═══ ONLY FETCH DASHBOARD V2 — single source of truth ═══
+var d=await fetchSheet('DASHBOARD V2');
+// Also fetch Monthly Highlights directly since it may be beyond the API row limit on DASHBOARD V2
+var hlTab=await fetchSheet('Monthly Highlights');
+
+// Google Sheets drops Excel rows 1-2 (title + instruction)
+// So Excel row N → API row (N-3) since API is 0-based and rows 1-2 gone
+// But we also need to account for the section header rows which may or may not be present
+// Let's use label search as primary, with known offsets as fallback
+
+// Helper: find row by exact label in col 0
+function fr(label){var l=label.toLowerCase();for(var i=0;i<d.length;i++){if(getStr(safe(d,i,0)).toLowerCase().includes(l))return i}return-1}
+
+// ═══ PROJECT SUMMARY ═══
+var totalBudget=getNum(safe(d,fr('total project budget'),1));if(isNaN(totalBudget))totalBudget=659746834;
+var gmpValue=getNum(safe(d,fr('construction (gmp)'),1));if(isNaN(gmpValue)){gmpValue=getNum(safe(d,fr('gmp value'),1));if(isNaN(gmpValue))gmpValue=534130000}
+var softCosts=getNum(safe(d,fr('soft costs'),1));if(isNaN(softCosts))softCosts=totalBudget-gmpValue;
+var msbaGrant=getNum(safe(d,fr('msba grant'),1));if(isNaN(msbaGrant))msbaGrant=121700000;
+var spentToDate=getNum(safe(d,fr('spent to-date'),1));if(isNaN(spentToDate))spentToDate=10620812;
+var remaining=getNum(safe(d,fr('remaining'),1));if(isNaN(remaining))remaining=totalBudget-spentToDate;
+var spentPct=totalBudget>0?(spentToDate/totalBudget)*100:0;
+var scheduleStatus=getStr(safe(d,fr('schedule status'),1))||'ON SCHEDULE';
+var budgetStatus=getStr(safe(d,fr('budget status'),1))||'ON BUDGET';
+log('SUMMARY: total='+totalBudget+' gmp='+gmpValue+' spent='+spentToDate);
+
+// ═══ CONTINGENCIES — find header row then read 5 data rows ═══
+var contHdr=fr('utilization rate');if(contHdr<0)contHdr=fr('type');
+var contingencies=[];
+if(contHdr>=0){for(var i=contHdr+1;i<Math.min(contHdr+6,d.length);i++){
+  var name=getStr(safe(d,i,0)).trim();if(!name||name.toLowerCase().includes('spending'))break;
+  var total=getNum(safe(d,i,1));if(isNaN(total))break;
+  contingencies.push({label:name,total:total,utilized:getNum(safe(d,i,2))||0,remaining:getNum(safe(d,i,3)),rate:getPct(safe(d,i,4))})}}
+log('Contingencies: '+contingencies.length);
+
+// ═══ BUDGET CATEGORIES — find "Category" header then read rows ═══
+var catHdr=fr('category');var budgetCats=[],budgetTotalRow=null;
+// There might be multiple "Category" matches — we want the one near "Spending"
+var spendSec=fr('spending by category');if(spendSec>=0){for(var i=spendSec+1;i<d.length;i++){if(getStr(safe(d,i,0)).toLowerCase().includes('category')){catHdr=i;break}}}
+if(catHdr>=0){for(var i=catHdr+1;i<d.length;i++){
+  var name=getStr(safe(d,i,0)).trim();if(!name||name.toLowerCase().includes('erp'))break;
+  var b=getNum(safe(d,i,1));if(isNaN(b))break;
+  if(name.toUpperCase()==='TOTAL'){budgetTotalRow={budget:b,spent:getNum(safe(d,i,2))||0,remaining:getNum(safe(d,i,3)),pct:getPct(safe(d,i,4))};break}
+  budgetCats.push({name:name,budget:b,spent:getNum(safe(d,i,2))||0,remaining:getNum(safe(d,i,3)),pct:getPct(safe(d,i,4))})}}
+if(!budgetTotalRow)budgetTotalRow={budget:totalBudget,spent:spentToDate,remaining:remaining,pct:spentPct};
+log('Budget cats: '+budgetCats.length);
+
+// ═══ ERP PACKAGES — find "Package" header in ERP section ═══
+var erpSec=fr('erp packages');var erpPkgs=[];
+if(erpSec>=0){var erpHdr=-1;for(var i=erpSec+1;i<Math.min(erpSec+3,d.length);i++){if(getStr(safe(d,i,0)).toLowerCase().includes('package')){erpHdr=i;break}}
+if(erpHdr>=0){for(var i=erpHdr+1;i<d.length;i++){
+  var name=getStr(safe(d,i,0)).trim();if(!name)break;if(name.toUpperCase().includes('TOTAL'))break;
+  var b=getNum(safe(d,i,1));if(isNaN(b))continue;
+  erpPkgs.push({name:name,budget:b,actual:getNum(safe(d,i,2)),variance:getNum(safe(d,i,3)),bidDate:getStr(safe(d,i,4)),status:getStr(safe(d,i,5))})}}}
+var erpTotalBud=0;for(var i=0;i<erpPkgs.length;i++){if(!isNaN(erpPkgs[i].budget))erpTotalBud+=erpPkgs[i].budget}
+log('ERP packages: '+erpPkgs.length);
+
+// ═══ QA/QC — find each label, value in col 3 (index 3) ═══
+var qaSec=fr('qa / qc');
+var totalRFIs=0,openRFIs=0,closedRFIs=0,totalSub=0,openSub=0,closedSub=0,totalDU=0,asis=0,prs=0,ccds=0;
+if(qaSec>=0){for(var i=qaSec+1;i<Math.min(qaSec+15,d.length);i++){
+  var lbl=getStr(safe(d,i,0)).toLowerCase().trim();var val=getNum(safe(d,i,3));if(isNaN(val))val=getNum(safe(d,i,1));if(isNaN(val))val=0;
+  if(lbl==='total rfis')totalRFIs=val;if(lbl.startsWith('open')&&totalRFIs>0&&openRFIs===0)openRFIs=val;if(lbl==='closed'&&totalRFIs>0&&closedRFIs===0)closedRFIs=val;
+  if(lbl==='total submittals')totalSub=val;if(lbl.startsWith('open')&&totalSub>=0&&openSub===0&&i>fr('total submittals'))openSub=val;
+  if(lbl.includes('total design'))totalDU=val;if(lbl==='asis')asis=val;if(lbl.startsWith('prs'))prs=val;if(lbl==='ccds')ccds=val;
+}}
+
+// ═══ MBE/WBE — find section, read 3 data rows ═══
+var mbeSec=fr('mbe / wbe');var mbeD={hours:0,goal:0,actual:0,status:''},wbeD={hours:0,goal:0,actual:0,status:''},vbeD={hours:0,goal:0,actual:0,status:''},totalManHours=0;
+if(mbeSec>=0){var mbeHdr=-1;for(var i=mbeSec+1;i<Math.min(mbeSec+3,d.length);i++){if(getStr(safe(d,i,0)).toLowerCase().includes('category')){mbeHdr=i;break}}
+if(mbeHdr>=0){
+  // Row mbeHdr+1=MBE, +2=WBE, +3=VBE
+  var r1=mbeHdr+1,r2=mbeHdr+2,r3=mbeHdr+3;
+  mbeD={hours:getNum(safe(d,r1,1))||0,goal:getNum(safe(d,r1,3))||0,actual:getNum(safe(d,r1,4))||0,status:getStr(safe(d,r1,5))};
+  wbeD={hours:getNum(safe(d,r2,1))||0,goal:getNum(safe(d,r2,3))||0,actual:getNum(safe(d,r2,4))||0,status:getStr(safe(d,r2,5))};
+  vbeD={hours:getNum(safe(d,r3,1))||0,goal:getNum(safe(d,r3,3))||0,actual:getNum(safe(d,r3,4))||0,status:getStr(safe(d,r3,5))};
+  // Total man hours
+  var tmhR=fr('total man hours');if(tmhR>=0)totalManHours=getNum(safe(d,tmhR,1))||0;
+}}
+log('MBE: h='+mbeD.hours+' g='+mbeD.goal+' WBE: h='+wbeD.hours);
+
+// ═══ PROJECT PHASES — find "Phase" header, read 6 rows ═══
+var phSec=fr('project phases');var phases=[];
+if(phSec>=0){
+// From debug: row after section header has "Phase" in col0, then sparse columns
+// Data rows: col0=name, col1=empty, col2=end date(?), col3=empty, col4=%
+// But Google Sheet shows: A=Phase, B=Start, C=End, D=Status, E=%
+// The API might be dropping empty cols or merging. Let's auto-detect by scanning header AND first data row
+var phHdr=-1;
+for(var i=phSec+1;i<Math.min(phSec+5,d.length);i++){if(getStr(safe(d,i,0)).toLowerCase().includes('phase')&&!getStr(safe(d,i,0)).toLowerCase().includes('project')){phHdr=i;break}}
+if(phHdr<0){for(var i=phSec+1;i<Math.min(phSec+6,d.length);i++){if(getStr(safe(d,i,0)).toLowerCase().includes('schematic')){phHdr=i-1;break}}}
+log('Phase header at: '+phHdr+' (section at '+phSec+')');
+
+// Auto-detect columns from header row
+var phCols={name:0,start:-1,end:-1,status:-1,pct:-1};
+if(phHdr>=0){for(var cc=0;cc<d[phHdr].length;cc++){var h=getStr(safe(d,phHdr,cc)).toLowerCase();
+  if(h.includes('start'))phCols.start=cc;if(h.includes('end'))phCols.end=cc;if(h.includes('status'))phCols.status=cc;if(h.includes('complete'))phCols.pct=cc}}
+// If columns not found in header, detect from first data row
+if(phCols.start<0||phCols.pct<0){
+  var testRow=phHdr>=0?phHdr+1:phSec+2;
+  if(testRow<d.length){
+    // Find columns with date-like text and percentage
+    for(var cc=1;cc<d[testRow].length;cc++){
+      var v=getStr(safe(d,testRow,cc));
+      if(v.match(/january|february|march|april|may|june|july|august|september|october|november|december/i)){
+        if(phCols.start<0)phCols.start=cc;else if(phCols.end<0)phCols.end=cc}
+      if(v.match(/complete|in progress|upcoming/i))phCols.status=cc;
+      if(v.match(/\d+%/)||(!isNaN(parseFloat(v))&&parseFloat(v)<=1&&parseFloat(v)>=0))phCols.pct=cc;
+    }}}
+log('Phase cols: start='+phCols.start+' end='+phCols.end+' status='+phCols.status+' pct='+phCols.pct);
+// If still missing cols, try all possible arrangements from the 7 cols
+// From debug dump: col0=name, col2=date, col4=pct. So try col1=start, col2=end, col3=status, col4=pct
+if(phCols.start<0)phCols.start=1;
+if(phCols.end<0)phCols.end=2;
+if(phCols.status<0)phCols.status=3;
+if(phCols.pct<0)phCols.pct=4;
+
+if(phHdr>=0){for(var i=phHdr+1;i<Math.min(phHdr+8,d.length);i++){
+  var name=getStr(safe(d,i,0)).trim();if(!name||name.toLowerCase().includes('construction schedule'))break;
+  // Try to get values from detected columns, with fallbacks
+  var startVal=getStr(safe(d,i,phCols.start));
+  var endVal=getStr(safe(d,i,phCols.end));
+  var statusVal=getStr(safe(d,i,phCols.status));
+  var pctVal=getPct(safe(d,i,phCols.pct));
+  // If start is empty but end has a value, the columns might be shifted
+  if(!startVal&&endVal){startVal=endVal;endVal=getStr(safe(d,i,phCols.end+1));statusVal=getStr(safe(d,i,phCols.status+1));pctVal=getPct(safe(d,i,phCols.pct+1))}
+  phases.push({name:name,start:startVal,end:endVal,status:statusVal,pct:pctVal})
+  log('Phase: '+name+' start='+startVal+' end='+endVal+' status='+statusVal+' pct='+pctVal);
+}}}
+var curPhase='Upcoming',curPct=0;
+for(var j=0;j<phases.length;j++){if(phases[j].status.toLowerCase().includes('in progress')){curPhase=phases[j].name;curPct=phases[j].pct;break}}
+if(curPhase==='Upcoming'){for(var j=0;j<phases.length;j++){if(phases[j].pct>0&&phases[j].pct<100){curPhase=phases[j].name;curPct=phases[j].pct;break}}}
+log('Phases: '+phases.length+', current: '+curPhase);
+if(phases.length>0)log('Phase[0]: '+phases[0].name+' status='+phases[0].status+' pct='+phases[0].pct);
+if(phases.length===0&&phSec>=0){for(var i=phSec;i<Math.min(phSec+8,d.length);i++){var rv=[];for(var c=0;c<Math.min(6,d[i].length);c++)rv.push(c+':'+getStr(safe(d,i,c)).substr(0,25));log('ph-debug['+i+']: '+rv.join(' | '))}}
+
+// ═══ CONSTRUCTION P1 — find section header, skip Activity header, read data ═══
+var p1Activities=[],p2Activities=[];
+var p1Sec=fr('construction schedule - phase 1');
+if(p1Sec>=0){var p1Hdr=-1;for(var i=p1Sec+1;i<Math.min(p1Sec+3,d.length);i++){if(getStr(safe(d,i,0)).toLowerCase().includes('activity')){p1Hdr=i;break}}
+if(p1Hdr>=0){for(var i=p1Hdr+1;i<d.length;i++){
+  var name=getStr(safe(d,i,0)).trim();if(!name)break;if(name.toLowerCase().includes('construction schedule'))break;
+  // P1 activities: col 0=name, col 2=start, col 3=end, col 4=%
+  p1Activities.push({name:name,start:getStr(safe(d,i,2)),end:getStr(safe(d,i,3)),pct:getPct(safe(d,i,4))})}}}
+// P2
+var p2Sec=fr('construction schedule - phase 2');
+if(p2Sec>=0){var p2Hdr=-1;for(var i=p2Sec+1;i<Math.min(p2Sec+3,d.length);i++){if(getStr(safe(d,i,0)).toLowerCase().includes('activity')){p2Hdr=i;break}}
+if(p2Hdr>=0){for(var i=p2Hdr+1;i<d.length;i++){
+  var name=getStr(safe(d,i,0)).trim();if(!name)break;if(name.toLowerCase().includes('key milestones'))break;
+  p2Activities.push({name:name,start:getStr(safe(d,i,2)),end:getStr(safe(d,i,3)),pct:getPct(safe(d,i,4))})}}}
+log('P1: '+p1Activities.length+', P2: '+p2Activities.length);
+
+// ═══ MILESTONES — find section, read rows ═══
+var milestones=[];var msSec=fr('key milestones');
+if(msSec>=0){var msHdr=-1;for(var i=msSec+1;i<Math.min(msSec+3,d.length);i++){if(getStr(safe(d,i,0)).toLowerCase().includes('date')){msHdr=i;break}}
+if(msHdr>=0){for(var i=msHdr+1;i<d.length;i++){
+  var dt=getStr(safe(d,i,0)).trim();if(!dt)break;if(dt.toLowerCase().includes('monthly'))break;
+  milestones.push({date:dt,name:getStr(safe(d,i,1)),status:getStr(safe(d,i,2))})}}}
+log('Milestones: '+milestones.length);
+
+// ═══ HIGHLIGHTS — find section ═══
+var hlMoment='',hlChallenge='',hlPositive='';
+// First try DASHBOARD V2
+var hlSec=fr('monthly highlights');
+if(hlSec>=0){for(var i=hlSec+1;i<Math.min(hlSec+6,d.length);i++){
+  var lbl=getStr(safe(d,i,0)).toLowerCase();if(lbl.includes('moment'))hlMoment=getStr(safe(d,i,1));
+  if(lbl.includes('challenge'))hlChallenge=getStr(safe(d,i,1));if(lbl.includes('positive'))hlPositive=getStr(safe(d,i,1))}}
+// Fallback: search DASHBOARD V2 for individual labels
+if(!hlMoment){var mr=fr('moment of the month');if(mr>=0)hlMoment=getStr(safe(d,mr,1))}
+if(!hlChallenge){var cr2=fr('upcoming challenge');if(cr2>=0)hlChallenge=getStr(safe(d,cr2,1))}
+if(!hlPositive){var pr2=fr('positive result');if(pr2>=0)hlPositive=getStr(safe(d,pr2,1))}
+// Fallback 2: read directly from Monthly Highlights tab
+if(!hlMoment&&hlTab){for(var i=0;i<hlTab.length;i++){var lbl=getStr(safe(hlTab,i,0)).toLowerCase();
+  if(lbl.includes('moment'))hlMoment=getStr(safe(hlTab,i,1));
+  if(lbl.includes('challenge'))hlChallenge=getStr(safe(hlTab,i,1));
+  if(lbl.includes('positive'))hlPositive=getStr(safe(hlTab,i,1))}}
+log('Highlights: moment='+(hlMoment?'YES':'NO')+' challenge='+(hlChallenge?'YES':'NO')+' positive='+(hlPositive?'YES':'NO'));
+
+// ═══ RENDER ═══
+var now=new Date();var mon=['January','February','March','April','May','June','July','August','September','October','November','December'];
+var upd=mon[now.getMonth()]+' '+now.getDate()+', '+now.getFullYear();
+
+// Donut
+var donutData=[];var donutColors=['#003262','#0a4a8a','#c4a35a','#e8d5a0','#6b7b8d','#3d8b6e','#8d95a0','#b8bec8','#5b4a8a'];
+for(var i=0;i<budgetCats.length;i++)donutData.push({label:budgetCats[i].name,value:budgetCats[i].budget,color:donutColors[i%donutColors.length],isGmp:budgetCats[i].name.toLowerCase().includes('construction budget')});
+var gmpPct=totalBudget>0?((gmpValue/totalBudget)*100).toFixed(0):'81';
+var CC=2*Math.PI*75,dSVG='',off=CC*0.25;
+for(var s=0;s<donutData.length;s++){var dd=totalBudget>0?(donutData[s].value/totalBudget)*CC:0;if(dd>0.5){dSVG+='<circle cx="100" cy="100" r="75" fill="none" stroke="'+donutData[s].color+'" stroke-width="26" stroke-dasharray="'+dd+' '+(CC-dd)+'" stroke-dashoffset="'+off+'" />';off-=dd}}
+
+// Budget table
+var budgetTableHTML='';
+for(var i=0;i<budgetCats.length;i++){var bc=budgetCats[i];var ps=bc.budget>0?(bc.spent/bc.budget*100):0;var isG=bc.name.toLowerCase().includes('construction budget');
+budgetTableHTML+='<tr><td><span style="font-weight:500">'+bc.name+'</span>'+(isG?'<span class="type-badge gmp">GMP</span>':'<span class="type-badge soft">Soft</span>')+'</td><td>'+fmt$(bc.budget)+'</td><td>'+fmt$(bc.spent)+'</td><td>'+fmt$(bc.remaining)+'</td><td><div style="display:flex;align-items:center;gap:8px;justify-content:flex-end"><span style="font-size:0.78rem;color:'+(ps>=100?'var(--green)':'var(--gray-400)')+'">'+fmtPct(ps)+'</span><div class="progress-track" style="width:80px"><div class="progress-fill '+pCol(ps)+'" style="width:'+Math.min(ps,100)+'%"></div></div></div></td></tr>'}
+if(budgetTotalRow){var tp=budgetTotalRow.budget>0?(budgetTotalRow.spent/budgetTotalRow.budget*100):0;budgetTableHTML+='<tr class="row-total"><td>Total</td><td>'+fmt$(budgetTotalRow.budget)+'</td><td>'+fmt$(budgetTotalRow.spent)+'</td><td>'+fmt$(budgetTotalRow.remaining)+'</td><td><div style="display:flex;align-items:center;gap:8px;justify-content:flex-end"><span style="font-size:0.78rem;font-weight:700;color:var(--navy)">'+fmtPct(tp)+'</span><div class="progress-track" style="width:80px"><div class="progress-fill fill-navy" style="width:'+Math.min(tp,100)+'%"></div></div></div></td></tr>'}
+
+// ERP table
+var erpHTML='';for(var i=0;i<erpPkgs.length;i++){var ep=erpPkgs[i];erpHTML+='<tr><td style="font-weight:500">'+ep.name+'</td><td>'+fmt$(ep.budget)+'</td><td>'+(!isNaN(ep.actual)&&ep.actual?fmt$(ep.actual):'—')+'</td><td>'+(ep.bidDate||'—')+'</td><td><span class="status-pill '+sCls(ep.status)+'">'+(ep.status||'Upcoming')+'</span></td></tr>'}
+erpHTML+='<tr class="row-total"><td>Total</td><td>'+fmt$(erpTotalBud)+'</td><td>—</td><td></td><td></td></tr>';
+
+// Phase rows with dropdowns
+function actTbl(arr){var h='<table class="act-table"><thead><tr><th>Activity</th><th>Start</th><th>Finish</th><th style="width:120px">Progress</th><th>% Complete</th></tr></thead><tbody>';for(var i=0;i<arr.length;i++){var a=arr[i];h+='<tr><td class="act-name">'+a.name+'</td><td>'+fmtDate(a.start)+'</td><td>'+fmtDate(a.end)+'</td><td><div class="progress-track"><div class="progress-fill '+pCol(a.pct)+'" style="width:'+Math.min(a.pct,100)+'%"></div></div></td><td>'+fmtPct(a.pct,0)+'</td></tr>'}h+='</tbody></table>';return h}
+function phaseRows(arr,p1,p2){var h='';for(var i=0;i<arr.length;i++){var p=arr[i];var isP1=p.name.toLowerCase().includes('phase 1');var isP2=p.name.toLowerCase().includes('phase 2');var hasDd=(isP1&&p1&&p1.length>0)||(isP2&&p2&&p2.length>0);var uid='pdd-'+i;
+if(hasDd){h+='<div class="phase-item phase-toggle" onclick="var el=document.getElementById(\''+uid+'\');el.classList.toggle(\'open\');this.classList.toggle(\'open\')"><div class="phase-name">'+p.name+'</div><div><div class="progress-track"><div class="progress-fill '+pCol(p.pct)+'" style="width:'+Math.min(p.pct,100)+'%"></div></div></div><div class="phase-dates">'+p.start+(p.end?' – '+p.end:'')+'</div><div><span class="status-pill '+sCls(p.status)+'">'+(p.status||fmtPct(p.pct,0))+'</span></div></div><div class="phase-dropdown" id="'+uid+'" style="padding:0 0 0 12px;border-left:3px solid var(--navy-light);margin:0 0 8px 10px">'+actTbl(isP1?p1:p2)+'</div>'}
+else{h+='<div class="phase-item"><div class="phase-name">'+p.name+'</div><div><div class="progress-track"><div class="progress-fill '+pCol(p.pct)+'" style="width:'+Math.min(p.pct,100)+'%"></div></div></div><div class="phase-dates">'+p.start+(p.end?' – '+p.end:'')+'</div><div><span class="status-pill '+sCls(p.status)+'">'+(p.status||fmtPct(p.pct,0))+'</span></div></div>'}}return h}
+
+var legendHTML='';for(var i=0;i<donutData.length;i++){if(donutData[i].value>0){var tl=donutData[i].isGmp?'Construction (GMP)':'Soft Cost';legendHTML+='<div class="legend-item"><div class="legend-swatch" style="background:'+donutData[i].color+'"></div><span class="legend-label">'+donutData[i].label+'</span><span class="legend-type">'+tl+'</span><span class="legend-value">'+fmtM(donutData[i].value)+'</span></div>'}}
+var msHTML='';for(var i=0;i<milestones.length;i++){var m=milestones[i];msHTML+='<div class="milestone-item"><div class="milestone-date">'+m.date+'</div><div class="milestone-name">'+m.name+'</div><div><span class="status-pill '+sCls(m.status)+'">'+(m.status||'Upcoming')+'</span></div></div>'}
+
+// ═══ FULL HTML ═══
+el.innerHTML=
+'<button class="debug-toggle" onclick="var d=document.getElementById(\'dbg\');d.style.display=d.style.display===\'none\'?\'block\':\'none\'">Debug</button><pre class="debug-panel" id="dbg">'+debugLog.join('\n')+'</pre>'+
+'<div class="header anim"><div class="header-top"><div><h1><span>Burlington Public Schools</span>Fox Hill Elementary School<br>Building Project</h1><div class="updated">MSBA Project &middot; Dore + Whittier Management Partners &middot; Data as of '+upd+'</div></div><div class="header-badges"><div class="header-badge"><div class="label">Total Project Budget</div><div class="value">'+fmtM(totalBudget)+'</div></div><div class="header-badge"><div class="label">Construction (GMP*)</div><div class="value">'+fmtM(gmpValue)+'</div></div><div class="header-badge"><div class="label">Soft Costs</div><div class="value">'+fmtM(softCosts)+'</div></div><div class="header-badge"><div class="label">MSBA Grant (Est.)</div><div class="value">'+fmtM(msbaGrant)+'</div></div></div></div></div>'+
+'<div class="stats-row"><a href="#sec-schedule" class="stat-card anim d1"><div class="label">Schedule Status</div><div class="value" style="font-size:1.1rem"><span class="status-pill on-schedule">'+scheduleStatus+'</span></div><div class="sub">Phase 1 Completion: Jun 2029</div></a><a href="#sec-budget" class="stat-card anim d2"><div class="label">Budget Status</div><div class="value" style="font-size:1.1rem"><span class="status-pill on-budget">'+budgetStatus+'</span></div><div class="sub">'+fmtPct(spentPct)+' billed to date</div></a><a href="#sec-budget-detail" class="stat-card anim d3"><div class="label">Spent to Date</div><div class="value">'+fmtM(spentToDate)+'</div><div class="sub">of '+fmtM(totalBudget)+' total budget</div></a><a href="#sec-schedule" class="stat-card anim d4"><div class="label">Current Phase</div><div class="value" style="font-size:1.05rem">'+curPhase+'</div><div class="sub">'+fmtPct(curPct,0)+' complete</div></a></div>'+
+'<div class="section anim d3" id="sec-budget"><div class="section-header"><h2>Total Project Budget Breakdown</h2><span class="pill">'+fmtM(totalBudget)+' Total</span></div><div class="section-body"><div class="donut-section"><div class="donut-container"><svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">'+dSVG+'<text x="100" y="94" text-anchor="middle" font-family="DM Serif Display,serif" font-size="22" fill="#003262">'+gmpPct+'%</text><text x="100" y="114" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="10" fill="#8d95a0">Construction</text></svg></div><div class="donut-legend">'+legendHTML+'</div></div><div style="display:flex;gap:20px;margin-top:24px;flex-wrap:wrap"><div style="flex:1;min-width:200px;background:var(--blue-bg);border-radius:10px;padding:18px 22px"><div style="font-size:0.72rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--navy);margin-bottom:6px">Construction (GMP*)</div><div style="font-family:DM Serif Display,serif;font-size:1.2rem;color:var(--navy)">'+fmtM(gmpValue)+' budget / $0 spent</div></div><div style="flex:1;min-width:200px;background:var(--gray-50);border:1px solid var(--gray-100);border-radius:10px;padding:18px 22px"><div style="font-size:0.72rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--gray-600);margin-bottom:6px">Soft Costs</div><div style="font-family:DM Serif Display,serif;font-size:1.2rem;color:var(--gray-800)">'+fmtM(softCosts)+' budget / '+fmt$(spentToDate)+' spent</div></div></div></div></div>'+
+'<div class="section anim d4" id="sec-budget-detail"><div class="section-header"><h2>Budget by Category — Spending to Date</h2></div><div class="section-body" style="overflow-x:auto"><table class="data-table"><thead><tr><th>Category</th><th>Budget</th><th>Spent</th><th>Remaining</th><th style="width:140px">% Spent</th></tr></thead><tbody>'+budgetTableHTML+'</tbody></table></div></div>'+
+'<div class="section anim d5"><div class="section-header"><h2>Construction Cost *GMP — Budget vs. Actual</h2><span class="pill">GMP*: '+fmtM(gmpValue)+'</span></div><div class="section-body" style="overflow-x:auto"><table class="data-table"><thead><tr><th>Package</th><th>Budget</th><th>Actual</th><th>Bid Date</th><th>Status</th></tr></thead><tbody>'+erpHTML+'</tbody></table><div class="footnotes"><strong>*GMP</strong> — Guaranteed Maximum Price: The maximum amount the owner will pay for the construction work.<br><strong>**ERP</strong> — Early Release Package: Bid packages released before the full construction documents are complete to accelerate the schedule.</div></div></div>'+
+'<div class="section anim d5"><div class="section-header"><h2>Contingencies &amp; Reserves</h2></div><div class="section-body"><div class="contingency-grid">'+contingencies.map(function(c){var up=(c.rate>0&&c.rate<=1)?c.rate*100:c.rate;return'<div class="contingency-card"><div class="c-label">'+c.label+'</div><div class="c-value">'+fmtM(c.total)+'</div><div class="c-sub">Utilized: '+fmt$(c.utilized)+' &middot; Remaining: '+fmtM(c.remaining)+'</div><div class="progress-track"><div class="progress-fill fill-navy" style="width:'+(up||0)+'%"></div></div></div>'}).join('')+'</div><div class="footnotes"><strong>Contingency</strong> — Funds set aside to cover unforeseen costs or risks during the project. The CM (Construction Manager) and Owner each maintain separate contingency reserves.<br><strong>Holds</strong> — Budget amounts reserved within the GMP for specific items that have been identified but not yet fully defined or priced. Holds are released or adjusted as decisions are made.<br><strong>Allowances</strong> — Pre-determined budget amounts included within the GMP for specific work items where the exact scope, materials, or pricing are not yet finalized at the time of contracting.</div></div></div>'+
+'<div class="section anim d6" id="sec-schedule"><div class="section-header"><h2>Project Schedule Overview</h2><span class="pill">'+scheduleStatus+'</span></div><div class="section-body"><div class="sub-title">Project Phases</div><div class="phase-list">'+phaseRows(phases,p1Activities,p2Activities)+'</div></div></div>'+
+'<div class="section anim d7"><div class="section-header"><h2>Quality Assurance &amp; Quality Control</h2></div><div class="section-body"><div class="qa-grid"><div class="qa-card"><div class="qa-label">RFIs*</div><div class="qa-total">'+totalRFIs+'</div><div class="qa-row"><span class="open-label">Open</span><span class="open-val">'+openRFIs+'</span></div><div class="qa-row"><span class="open-label">Closed</span><span class="open-val">'+closedRFIs+'</span></div></div><div class="qa-card"><div class="qa-label">Submittals</div><div class="qa-total">'+totalSub+'</div><div class="qa-row"><span class="open-label">Open</span><span class="open-val">'+openSub+'</span></div><div class="qa-row"><span class="open-label">Closed</span><span class="open-val">'+closedSub+'</span></div></div><div class="qa-card"><div class="qa-label">Design Updates**</div><div class="qa-total">'+totalDU+'</div><div class="qa-row"><span class="open-label">ASIs</span><span class="open-val">'+asis+'</span></div><div class="qa-row"><span class="open-label">PRs</span><span class="open-val">'+prs+'</span></div><div class="qa-row"><span class="open-label">CCDs</span><span class="open-val">'+ccds+'</span></div></div></div><div class="footnotes"><strong>*RFI</strong> — Request for Information<br><strong>**ASIs</strong> — Architect\'s Supplemental Instructions; <strong>PRs</strong> — Proposal Requests; <strong>CCDs</strong> — Construction Change Directives</div></div></div>'+
+'<div class="section anim d8"><div class="section-header"><h2>MBE* / WBE** / VBE*** Participation</h2><span class="pill">'+(totalManHours?totalManHours.toLocaleString()+' Total Man Hours':'')+'</span></div><div class="section-body"><div class="mbe-grid"><div class="mbe-card"><div class="mbe-type">MBE*</div><div class="mbe-row"><span>Total Hours</span><span class="mbe-val">'+(mbeD.hours||0).toLocaleString()+'</span></div><div class="mbe-row"><span>Goal</span><span class="mbe-val">'+fmtPct((mbeD.goal||0)*(mbeD.goal<=1?100:1),1)+'</span></div><div class="mbe-row"><span>Actual</span><span class="mbe-val">'+fmtPct((mbeD.actual||0)*(mbeD.actual<=1?100:1),1)+'</span></div><div class="mbe-status"><span class="status-pill '+sCls(mbeD.status)+'">'+(mbeD.status||'—')+'</span></div></div><div class="mbe-card"><div class="mbe-type">WBE**</div><div class="mbe-row"><span>Total Hours</span><span class="mbe-val">'+(wbeD.hours||0).toLocaleString()+'</span></div><div class="mbe-row"><span>Goal</span><span class="mbe-val">'+fmtPct((wbeD.goal||0)*(wbeD.goal<=1?100:1),1)+'</span></div><div class="mbe-row"><span>Actual</span><span class="mbe-val">'+fmtPct((wbeD.actual||0)*(wbeD.actual<=1?100:1),1)+'</span></div><div class="mbe-status"><span class="status-pill '+sCls(wbeD.status)+'">'+(wbeD.status||'—')+'</span></div></div><div class="mbe-card"><div class="mbe-type">VBE***</div><div class="mbe-row"><span>Total Hours</span><span class="mbe-val">'+(vbeD.hours||0).toLocaleString()+'</span></div><div class="mbe-row"><span>Goal</span><span class="mbe-val">'+fmtPct((vbeD.goal||0)*(vbeD.goal<=1?100:1),1)+'</span></div><div class="mbe-row"><span>Actual</span><span class="mbe-val">'+fmtPct((vbeD.actual||0)*(vbeD.actual<=1?100:1),1)+'</span></div><div class="mbe-status"><span class="status-pill '+sCls(vbeD.status)+'">'+(vbeD.status||'—')+'</span></div></div></div><div class="footnotes"><strong>*MBE</strong> — Minority Business Enterprise<br><strong>**WBE</strong> — Women Business Enterprise<br><strong>***VBE</strong> — Veteran Business Enterprise</div></div></div>'+
+'<div class="section anim d9"><div class="section-header"><h2>Monthly Highlights</h2><span class="pill">'+mon[now.getMonth()]+' '+now.getFullYear()+'</span></div><div class="section-body"><div class="highlights-grid"><div class="highlight-card"><div class="h-label moment">Moment of the Month</div><p>'+(hlMoment||'No update this month.')+'</p></div><div class="highlight-card"><div class="h-label challenge">Upcoming Challenges</div><p>'+(hlChallenge||'No update this month.')+'</p></div><div class="highlight-card"><div class="h-label positive">Positive Results</div><p>'+(hlPositive||'No update this month.')+'</p></div></div></div></div>'+
+'<div class="section anim d10"><div class="section-header"><h2>Links &amp; Resources</h2></div><div class="section-body"><div class="links-row"><span class="link-btn" style="opacity:0.5;cursor:default;pointer-events:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Monthly OPM Report</span><span class="link-btn" style="opacity:0.5;cursor:default;pointer-events:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Progress Photo Gallery</span><span class="link-btn" style="opacity:0.5;cursor:default;pointer-events:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>Previous Updates</span></div></div></div>'+
+'<div class="footer">Fox Hill Elementary School Building Project &middot; Burlington Public Schools &middot; Burlington, Massachusetts<br>For questions, visit <a href="https://www.foxhillbuildingproject.com" target="_blank">www.foxhillbuildingproject.com</a></div>';
+
+}catch(err){log('ERROR: '+err.message+'\n'+err.stack);el.innerHTML='<div class="error-msg"><strong>Unable to load dashboard data.</strong><br>Sheet ID: <code>'+SHEET_ID+'</code><br><small style="opacity:0.7;margin-top:8px;display:block">'+err.message+'</small><br><br><button class="debug-toggle" onclick="var d=document.getElementById(\'dbg2\');d.style.display=d.style.display===\'none\'?\'block\':\'none\'">Show Debug</button><pre class="debug-panel" id="dbg2" style="text-align:left">'+debugLog.join('\n')+'</pre></div>'}}
+build();
+function sendHeight(){var h=document.documentElement.scrollHeight;if(window.parent!==window){window.parent.postMessage({type:'lhs-resize',height:h},'*')}}
+window.addEventListener('load',function(){setTimeout(sendHeight,500);setTimeout(sendHeight,1500);setTimeout(sendHeight,3000)});window.addEventListener('resize',sendHeight);document.addEventListener('click',function(){setTimeout(sendHeight,400)});setInterval(sendHeight,2000);
+</script>
+</body>
+</html>
