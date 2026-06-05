@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fox Hill Elementary School Building Project — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#16513a;--navy-dark:#0e3a29;--navy-light:#2a7a55;--navy-hint:#1f3a5f;--navy-accent:#234a7a;--navy-soft:#6f93c0;--navy-bg:#e6ecf6;--beige:#f0ebdf;--beige-line:#ddd2b8;--accent:#c4a35a;--accent-light:#e8d5a0;--white:#fff;--off-white:#f1efe6;--gray-50:#f7f8f6;--gray-100:#eaeee9;--gray-200:#d3dad2;--gray-300:#b8c0b6;--gray-400:#6b7280;--gray-600:#54605a;--gray-800:#27322c;--green:#1a8754;--green-bg:#e4f3ea;--amber:#b8860b;--amber-bg:#fef3d0;--blue-bg:#e2efe8;--red:#c0392b;--red-bg:#fce4e4}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'DM Sans',sans-serif;background:var(--off-white);color:var(--gray-800);line-height:1.55;-webkit-font-smoothing:antialiased}
+.dashboard{max-width:1240px;margin:0 auto;padding:32px 24px 64px}
+.loading-overlay{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:400px;gap:16px}
+.spinner{width:40px;height:40px;border:4px solid var(--gray-100);border-top-color:var(--navy);border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:.9rem;color:var(--gray-400)}.error-msg{background:var(--red-bg);color:var(--red);padding:24px 32px;border-radius:14px;font-size:.92rem;text-align:center;line-height:1.7}
+.header{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-dark) 55%,#06180f 100%);border-radius:18px;padding:44px 48px 40px;color:var(--white);position:relative;overflow:visible;margin-bottom:28px}.header::before{content:'';position:absolute;top:-60%;right:-12%;width:560px;height:560px;background:radial-gradient(circle,rgba(35,74,122,.20) 0%,transparent 70%);pointer-events:none}.header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--navy-accent),var(--navy-soft),var(--navy-accent))}.header-top{display:flex;align-items:flex-start;gap:24px;flex-wrap:wrap}.header h1{font-family:'DM Serif Display',serif;font-size:2.1rem;font-weight:400;letter-spacing:-.01em;line-height:1.15}.header h1 span{display:block;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#f2eee5;margin-bottom:8px}.updated{font-size:.78rem;color:rgba(255,255,255,.50);margin-top:16px;font-weight:500}.header-badges{display:flex;gap:14px;flex-shrink:0;flex-wrap:wrap}.header-badge{background:var(--beige);border:1px solid var(--beige-line);border-radius:12px;padding:16px 22px;text-align:right;min-width:150px;box-shadow:0 3px 10px rgba(0,0,0,.16)}.header-badge .label{font-size:.68rem;letter-spacing:.10em;text-transform:uppercase;color:var(--navy-accent);margin-bottom:4px;font-weight:600}.header-badge .value{font-family:'DM Serif Display',serif;font-size:1.55rem;color:var(--navy)}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}.stat-card{background:var(--white);border-radius:14px;padding:24px 26px;border:1px solid var(--gray-100);transition:box-shadow .25s;text-decoration:none;display:block;color:inherit}.stat-card:hover{box-shadow:0 6px 24px rgba(0,50,98,.07)}a.stat-card{cursor:pointer}.stat-card .label{font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--navy-accent);margin-bottom:8px}.stat-card .value{font-family:'DM Serif Display',serif;font-size:1.55rem;color:var(--navy)}.stat-card .sub{font-size:.78rem;color:var(--gray-400);margin-top:5px}
+.status-pill{display:inline-flex;align-items:center;gap:5px;font-size:.75rem;font-weight:600;padding:4px 12px;border-radius:6px;white-space:nowrap}.status-pill::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}.status-pill.complete{background:var(--green-bg);color:var(--green)}.status-pill.in-progress{background:var(--amber-bg);color:var(--amber)}.status-pill.upcoming{background:var(--gray-100);color:var(--gray-400)}.status-pill.pre-bid{background:var(--blue-bg);color:var(--navy-light)}.status-pill.on-schedule{background:var(--green-bg);color:var(--green)}.status-pill.on-budget{background:var(--green-bg);color:var(--green)}.status-pill.below-goal{background:var(--red-bg);color:var(--red)}.status-pill.meeting-goal,.status-pill.above-goal{background:var(--green-bg);color:var(--green)}
+.section{background:var(--white);border-radius:16px;border:1px solid var(--gray-100);margin-bottom:24px;overflow:visible}.section-header{display:flex;align-items:center;justify-content:space-between;padding:22px 28px 18px;border-bottom:1px solid var(--gray-100);gap:12px;flex-wrap:wrap}.section-header h2{font-family:'DM Serif Display',serif;font-size:1.18rem;font-weight:400;color:var(--navy)}.section-header .pill{font-size:.68rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:5px 14px;border-radius:99px;background:var(--navy-bg);color:var(--navy-accent);white-space:nowrap}.section-body{padding:22px 28px 28px}
+.section.collapsible .section-header{cursor:pointer;user-select:none;transition:background .2s;justify-content:space-between}.section.collapsible .section-header:hover{background:var(--gray-50)}.section.collapsible .section-header .chevron{width:28px;height:28px;border-radius:50%;background:var(--gray-400);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .3s ease,background .2s}.section.collapsible .section-header .chevron svg{width:14px;height:14px;stroke:var(--white);stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round}.section.collapsible .section-header .pill{margin-left:auto;margin-right:12px}.section.collapsible.collapsed .section-header{border-bottom:none;padding-bottom:22px}.section.collapsible.collapsed .section-header .chevron{transform:rotate(-90deg)}.section.collapsible.open .section-header .chevron{background:var(--navy);transform:rotate(0deg)}.section.collapsible.collapsed .section-body{display:none}.sub-title{font-family:'DM Serif Display',serif;font-size:.95rem;color:var(--navy-accent);margin:28px 0 14px;padding-top:20px;border-top:1px solid var(--gray-100)}.sub-title:first-child,.sub-title:first-of-type{margin-top:0;border-top:none;padding-top:0}
+.donut-section{display:flex;align-items:center;gap:40px;flex-wrap:wrap;justify-content:center}.donut-container{width:220px;height:220px;flex-shrink:0}.donut-legend{display:flex;flex-direction:column;gap:10px;min-width:200px}.legend-item{display:flex;align-items:center;gap:10px;font-size:.84rem}.legend-swatch{width:14px;height:14px;border-radius:3px;flex-shrink:0}.legend-label{color:var(--gray-600);width:160px;flex-shrink:0}.legend-value{font-weight:700;color:var(--gray-800);font-variant-numeric:tabular-nums;text-align:right}.legend-type{font-size:.70rem;font-weight:600;color:var(--navy-accent);margin-left:6px;font-style:italic}
+.data-table{width:100%;border-collapse:collapse;font-size:.86rem}.data-table thead th{text-align:left;font-size:.70rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--gray-400);padding:0 12px 12px;border-bottom:2px solid var(--gray-100);white-space:nowrap}.data-table thead th:not(:first-child){text-align:right}.data-table tbody td{padding:14px 12px;border-bottom:1px solid var(--gray-100);vertical-align:middle}.data-table tbody td:not(:first-child){text-align:right;font-variant-numeric:tabular-nums}.data-table tbody tr:last-child td{border-bottom:none}.data-table .row-total td{font-weight:700;color:var(--navy);border-top:2px solid var(--navy);border-bottom:none;padding-top:16px}
+.progress-track{width:100%;height:8px;background:var(--gray-100);border-radius:99px;overflow:hidden}.progress-fill{height:100%;border-radius:99px;transition:width 1s cubic-bezier(.22,1,.36,1)}.fill-navy{background:var(--navy)}.fill-green{background:var(--green)}.fill-amber{background:var(--amber)}.fill-accent{background:var(--accent)}
+.phase-list{display:flex;flex-direction:column;gap:2px}.phase-item{display:grid;grid-template-columns:220px 1fr 140px 80px;align-items:center;gap:16px;padding:13px 0;border-bottom:1px solid var(--gray-100)}.phase-item:last-child{border-bottom:none}.phase-name{font-weight:600;font-size:.86rem;color:var(--gray-800)}.phase-dates{font-size:.78rem;color:var(--gray-400);text-align:right}.phase-pct{font-size:.82rem;font-weight:700;color:var(--navy);text-align:right;font-variant-numeric:tabular-nums}
+.act-table{width:100%;border-collapse:collapse;font-size:.84rem}.act-table thead th{text-align:left;font-size:.68rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--gray-400);padding:0 10px 10px;border-bottom:2px solid var(--gray-100)}.act-table thead th:nth-child(n+2){text-align:center}.act-table thead th:last-child{text-align:right}.act-table tbody td{padding:14px 10px;border-bottom:1px solid var(--gray-100);vertical-align:middle}.act-table tbody td:nth-child(2),.act-table tbody td:nth-child(3){text-align:center;font-variant-numeric:tabular-nums;font-size:.82rem;color:var(--gray-600)}.act-table tbody td:nth-child(4){text-align:center}.act-table tbody td:last-child{text-align:right;font-weight:700;color:var(--navy);font-variant-numeric:tabular-nums}.act-table tbody tr:last-child td{border-bottom:none}.act-name{font-weight:600;color:var(--gray-800)}
+.qa-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.qa-card{border:1px solid var(--gray-100);border-radius:12px;padding:20px 22px}.qa-card .qa-label{font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--gray-400);margin-bottom:6px}.qa-card .qa-total{font-family:'DM Serif Display',serif;font-size:1.4rem;color:var(--navy);margin-bottom:8px}.qa-row{display:flex;justify-content:space-between;font-size:.82rem;padding:3px 0}.qa-row .open-label{color:var(--gray-600)}.qa-row .open-val{font-weight:600;color:var(--gray-800)}
+.mbe-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.mbe-card{border:1px solid var(--gray-100);border-radius:12px;padding:20px 22px}.mbe-card .mbe-type{font-family:'DM Serif Display',serif;font-size:1.05rem;color:var(--navy);margin-bottom:10px}.mbe-row{display:flex;justify-content:space-between;font-size:.82rem;padding:4px 0;color:var(--gray-600)}.mbe-row .mbe-val{font-weight:600;color:var(--gray-800)}.mbe-card .mbe-status{margin-top:10px}
+.contingency-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}.contingency-card{border:1px solid var(--gray-100);border-radius:12px;padding:20px 22px}.contingency-card .c-label{font-size:.78rem;font-weight:600;color:var(--gray-800);margin-bottom:4px}.contingency-card .c-value{font-family:'DM Serif Display',serif;font-size:1.2rem;color:var(--navy);margin-bottom:3px}.contingency-card .c-sub{font-size:.76rem;color:var(--gray-400);margin-bottom:8px}
+.co-tracker{margin-top:20px;padding:20px 22px;border:1px solid var(--gray-100);border-radius:12px}.co-tracker .co-title{font-size:.78rem;font-weight:600;color:var(--gray-800);margin-bottom:10px}.co-bar-wrap{height:28px;background:var(--gray-100);border-radius:99px;overflow:hidden;display:flex;position:relative}.co-bar-seg{height:100%;transition:width .8s ease}.co-bar-seg.approved{background:var(--green)}.co-bar-seg.pending{background:var(--amber)}.co-bar-seg.forecast{background:var(--navy-light)}.co-legend{display:flex;gap:24px;margin-top:12px;flex-wrap:wrap}.co-legend-item{display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--gray-600)}.co-legend-item .co-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}.co-legend-item .co-dot.approved{background:var(--green)}.co-legend-item .co-dot.pending{background:var(--amber)}.co-legend-item .co-dot.forecast{background:var(--navy-light)}.co-legend-item .co-dot.remaining{background:var(--gray-200)}.co-legend-item strong{font-weight:700;color:var(--gray-800)}
+.highlights-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}.highlight-card{border:1px solid var(--gray-100);border-radius:12px;padding:28px 28px;min-height:180px}.highlight-card .h-label{font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px}.highlight-card .h-label.moment{color:#1a8754}.highlight-card .h-label.challenge{color:#1f7a6b}.highlight-card .h-label.positive{color:var(--green)}.highlight-card p{font-size:.88rem;color:var(--gray-600);line-height:1.7}
+.links-row{display:flex;gap:14px;flex-wrap:wrap}.link-btn{display:inline-flex;align-items:center;gap:8px;background:var(--navy);color:var(--white);text-decoration:none;padding:12px 22px;border-radius:10px;font-size:.84rem;font-weight:600;transition:background .2s}.link-btn:hover{background:var(--navy-light)}.link-btn svg{width:16px;height:16px}
+.type-badge{display:inline-block;font-size:.64rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:4px;margin-left:8px;vertical-align:middle}.type-badge.gmp{background:var(--navy);color:var(--white)}.type-badge.soft{background:var(--gray-100);color:var(--gray-600)}
+.footnotes{margin-top:18px;padding-top:14px;border-top:1px solid var(--gray-100);font-size:.76rem;color:var(--gray-400);line-height:1.8}.footnotes strong{color:var(--gray-600);font-weight:600}
+.footer{text-align:center;padding:28px;font-size:.75rem;color:var(--gray-400)}.footer a{color:var(--navy);text-decoration:none}
+.phase-toggle{cursor:pointer;user-select:none}.phase-toggle:hover{background:var(--gray-50)}.phase-toggle .phase-name{display:flex;align-items:center;gap:6px}.phase-toggle .phase-name::before{content:'▶';font-size:.6rem;color:var(--gray-400);transition:transform .25s;display:inline-block;flex-shrink:0}.phase-toggle.open .phase-name::before{transform:rotate(90deg);color:var(--navy)}.phase-dropdown{max-height:0;overflow:hidden;transition:max-height .4s ease;grid-column:1/-1}.phase-dropdown.open{max-height:2000px}
+.fhg-wrap{overflow-x:auto;border:1px solid var(--gray-100);border-radius:12px;padding:16px 18px 20px;background:linear-gradient(180deg,var(--gray-50),#fff);margin-bottom:6px}.fhg{min-width:780px;position:relative}.fhg-note{display:flex;align-items:center;gap:8px;background:var(--green-bg);color:var(--navy);border:1px dashed var(--navy-light);border-radius:8px;padding:9px 13px;font-size:.78rem;margin-bottom:14px;line-height:1.5}.fhg-head{display:flex;align-items:flex-end;border-bottom:2px solid var(--navy);padding-bottom:6px;margin-bottom:6px}.fhg-spacer{width:240px;flex-shrink:0}.fhg-axis{flex:1;display:flex}.fhg-tick{text-align:center;font-size:.72rem;font-weight:700;color:var(--navy);border-left:1px solid var(--gray-200);padding-bottom:2px}.fhg-tick:first-child{border-left:none}.fhg-phase{display:flex;align-items:center;gap:8px;font-size:.7rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--navy);padding:14px 0 7px}.fhg-key{width:14px;height:10px;border-radius:3px;display:inline-block}.fhg-key.p1{background:linear-gradient(90deg,var(--green),var(--navy-light))}.fhg-key.p2{background:linear-gradient(90deg,var(--navy-hint),#3a5f8a)}.fhg-row{display:flex;align-items:center;min-height:32px}.fhg-row-label{width:240px;flex-shrink:0;font-size:.8rem;color:var(--gray-800);font-weight:500;padding-right:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.fhg-track{flex:1;position:relative;height:22px;background:var(--gray-100);border-radius:6px}.fhg-grid{position:absolute;inset:0;display:flex;border-radius:6px;overflow:hidden}.fhg-gl{flex:1;border-left:1px solid rgba(0,0,0,.045)}.fhg-gl:first-child{border-left:none}.fhg-bar{position:absolute;top:0;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;padding:0 7px;font-size:.64rem;font-weight:700;color:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18);min-width:6px;transition:width .8s cubic-bezier(.22,1,.36,1)}.fhg-bar.p1{background:linear-gradient(90deg,var(--green),var(--navy-light))}.fhg-bar.p2{background:linear-gradient(90deg,var(--navy-hint),#3a5f8a)}.fhg-today{position:absolute;top:-5px;bottom:-5px;width:2px;background:var(--red);z-index:4;box-shadow:0 0 6px rgba(192,57,43,.4)}.co-pct{margin-top:12px;padding-top:10px;border-top:1px solid var(--gray-100);font-size:.82rem;color:var(--gray-600)}.co-pct strong{color:var(--navy);font-weight:700}
+.pg-wrap{overflow-x:auto;border:1px solid var(--gray-100);border-radius:12px;padding:20px 104px 22px 20px;background:linear-gradient(180deg,var(--gray-50),#fff)}.pg{min-width:860px;position:relative}.pg-head{display:flex;align-items:flex-end;border-bottom:2px solid var(--navy);padding-bottom:6px;margin-bottom:12px}.pg-spacer{width:250px;flex-shrink:0}.pg-axis{flex:1;display:flex;position:relative}.pg-tick{text-align:center;font-size:.72rem;font-weight:700;color:var(--navy);border-left:1px solid var(--gray-200)}.pg-tick:first-child{border-left:none}.pg-row{display:flex;align-items:center;min-height:32px}.pg-rl{width:250px;flex-shrink:0;padding-right:14px;font-size:.82rem;color:var(--gray-800);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pg-rl.phase{font-weight:700}.pg-rl.sub{font-size:.78rem;color:var(--gray-600);padding-left:18px}.pg-dl{position:absolute;top:50%;transform:translateY(-50%);font-size:.62rem;font-weight:600;color:var(--gray-600);white-space:nowrap;padding-left:8px;background:rgba(255,255,255,.7);border-radius:3px;z-index:5}.pg-dl.right{transform:translate(-100%,-50%);padding-left:0;padding-right:8px}.pg-track{flex:1;position:relative;height:32px}.pg-grid{position:absolute;inset:0;display:flex}.pg-gl{border-left:1px solid rgba(0,0,0,.05)}.pg-gl:first-child{border-left:none}.pg-bar{position:absolute;top:7px;height:18px;border-radius:5px;display:flex;align-items:center;padding:0 8px;font-size:.62rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.2)}.pg-bar.umbrella{top:11px;height:10px;opacity:.3}.pg-today{position:absolute;top:0;bottom:0;width:2px;background:var(--red);z-index:6}.pg-today-flag{position:absolute;top:-19px;transform:translateX(-50%);background:var(--red);color:#fff;font-size:.6rem;font-weight:700;letter-spacing:.05em;padding:2px 7px;border-radius:5px;white-space:nowrap;z-index:8;box-shadow:0 1px 3px rgba(192,57,43,.4)}.pg-ms{position:absolute;top:9px;z-index:7;transform:translateX(-50%)}.pg-ms .dia{width:14px;height:14px;background:var(--accent);border:2px solid #fff;transform:rotate(45deg);box-shadow:0 1px 3px rgba(0,0,0,.3)}.pg-mslbl{position:absolute;top:50%;transform:translateY(-50%);padding-left:13px;font-size:.63rem;font-weight:700;color:var(--navy-accent);white-space:nowrap;z-index:7}.pg-legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:16px;padding-top:14px;border-top:1px solid var(--gray-100)}.pg-leg{display:flex;align-items:center;gap:7px;font-size:.76rem;color:var(--gray-600)}.pg-sw{width:14px;height:14px;border-radius:4px;flex-shrink:0}.pg-sw.dia{border-radius:2px;transform:rotate(45deg);width:11px;height:11px;background:var(--accent);margin:0 2px}.pg-mscap{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:10px}.pg-mc{display:flex;align-items:center;gap:8px;font-size:.78rem;color:var(--gray-600)}.pg-mdia{width:11px;height:11px;background:var(--accent);transform:rotate(45deg);border:1.5px solid #fff;box-shadow:0 1px 2px rgba(0,0,0,.22);flex-shrink:0}.pg-mc strong{color:var(--navy-accent);font-weight:700;margin-left:3px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}.anim{animation:fadeUp .5s cubic-bezier(.22,1,.36,1) both}.d1{animation-delay:.06s}.d2{animation-delay:.12s}.d3{animation-delay:.18s}.d4{animation-delay:.24s}.d5{animation-delay:.30s}.d6{animation-delay:.36s}.d7{animation-delay:.42s}.d8{animation-delay:.48s}.d9{animation-delay:.54s}.d10{animation-delay:.60s}.d11{animation-delay:.66s}
+@media(max-width:960px){.stats-row{grid-template-columns:repeat(2,1fr)}.qa-grid,.mbe-grid,.contingency-grid,.highlights-grid{grid-template-columns:1fr}.phase-item{grid-template-columns:1fr 1fr;gap:8px}}
+@media(max-width:600px){.dashboard{padding:16px 12px 40px}.header{padding:28px 22px 24px;border-radius:12px}.header h1{font-size:1.5rem}.stats-row{grid-template-columns:1fr}.section-body{padding:16px 18px 22px}.data-table,.act-table{font-size:.78rem}.donut-section{flex-direction:column;align-items:flex-start}.phase-item{grid-template-columns:1fr}.header-badges{flex-direction:column}}
+.debug-panel{background:#1a1a2e;color:#0f0;padding:16px;border-radius:8px;margin-bottom:24px;font-family:monospace;font-size:.72rem;white-space:pre-wrap;max-height:400px;overflow-y:auto;display:none}.debug-toggle{background:var(--gray-100);border:none;padding:6px 14px;border-radius:6px;font-size:.72rem;cursor:pointer;color:var(--gray-600);margin-bottom:12px}
+html{scroll-behavior:smooth}
+.tip{position:relative;border-bottom:1px dotted var(--accent);cursor:help;font-weight:600;display:inline}.ct-title .tip{font-weight:400}.tip .tiptext{visibility:hidden;background:var(--navy);color:var(--white);font-weight:400;font-size:.78rem;line-height:1.5;padding:10px 14px;border-radius:8px;position:absolute;z-index:999;top:calc(100% + 8px);left:50%;transform:translateX(-50%);min-width:240px;max-width:340px;box-shadow:0 4px 16px rgba(0,0,0,.2);pointer-events:none;opacity:0;transition:opacity .2s;text-align:left;white-space:normal}.tip .tiptext::after{content:'';position:absolute;bottom:100%;left:50%;margin-left:-6px;border-width:6px;border-style:solid;border-color:transparent transparent var(--navy) transparent}.tip:hover .tiptext{visibility:visible;opacity:1}
+
+@media print{
+  .debug-toggle,.debug-panel{display:none!important}
+  body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .dashboard{padding-bottom:0}
+  .stat-card,.qa-card,.mbe-card,.contingency-card,.highlight-card{break-inside:avoid;page-break-inside:avoid}
+  .phase-item,.milestone-item,tr{break-inside:avoid;page-break-inside:avoid}
+  .section-header,.sub-title{break-after:avoid;page-break-after:avoid}
+  .highlight-card p{color:#2d3340!important}
+  .highlight-card .h-label.moment{color:#1a8754!important}
+  .highlight-card .h-label.challenge{color:#1f7a6b!important}
+  .highlight-card .h-label.positive{color:#1a8754!important}
+  .highlight-card{border:1px solid #d4d8de!important}
+}
+</style>
+</head>
+<body>
+<div class="dashboard" id="dashboard"><div class="loading-overlay"><div class="spinner"></div><div class="loading-text">Loading dashboard data…</div></div></div>
+<script>
+var SHEET_ID='1lv3ikjOT0-DFKBxPj8kWsQlc8Uj70wSF';
+var debugLog=[];function log(m){debugLog.push('['+new Date().toISOString().substr(11,8)+'] '+m)}
+
+function fetchSheet(tabName){return new Promise(function(resolve,reject){var cb='cb_'+Math.random().toString(36).substr(2,9);var url='https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:json;responseHandler:'+cb+'&sheet='+encodeURIComponent(tabName);window[cb]=function(resp){delete window[cb];if(script.parentNode)script.parentNode.removeChild(script);if(resp.status==='error'){reject(new Error('Sheet error: '+tabName));return}var t=resp.table,rows=[];var nc=t.cols.length;for(var r=0;r<t.rows.length;r++){var row=[];for(var c=0;c<nc;c++){var cell=(t.rows[r].c&&t.rows[r].c[c])?t.rows[r].c[c]:null;if(!cell)row.push({v:null,f:null});else row.push({v:cell.v!==undefined?cell.v:null,f:cell.f||null})}rows.push(row)}log('Loaded: '+tabName+' ('+rows.length+' rows, '+nc+' cols)');resolve(rows)};var script=document.createElement('script');script.src=url;script.onerror=function(){delete window[cb];reject(new Error('Network error: '+tabName))};document.body.appendChild(script)})}
+
+function getNum(c){if(!c)return NaN;if(typeof c.v==='number')return c.v;if(c.v!=null){var p=parseFloat(String(c.v).replace(/[$,%\s]/g,''));if(!isNaN(p))return p}if(c.f){var p2=parseFloat(String(c.f).replace(/[$,%\s]/g,''));if(!isNaN(p2))return p2}return NaN}
+function getStr(c){if(!c)return'';if(c.f)return String(c.f);if(c.v!=null)return String(c.v);return''}
+function getPct(c){if(!c)return 0;if(c.f&&String(c.f).includes('%')){var n=parseFloat(String(c.f).replace('%',''));if(!isNaN(n))return n}var n2=typeof c.v==='number'?c.v:parseFloat(String(c.v));if(isNaN(n2))return 0;if(n2>0&&n2<=1)return n2*100;return n2}
+function fmt$(v){if(isNaN(v))return'—';return'$'+Math.round(v).toLocaleString('en-US')}
+function fmtM(v){if(isNaN(v))return'—';if(Math.abs(v)>=1e9)return'$'+(v/1e9).toFixed(1)+'B';if(Math.abs(v)>=1e6)return'$'+(v/1e6).toFixed(1)+'M';if(Math.abs(v)>=1e3)return'$'+(v/1e3).toFixed(0)+'K';return'$'+Math.round(v).toLocaleString('en-US')}
+function fmtPct(v,d){return v.toFixed(d!==undefined?d:1)+'%'}
+function pCol(p){if(p>=100)return'fill-green';if(p>=40)return'fill-amber';if(p>0)return'fill-accent';return'fill-navy'}
+function sCls(s){if(!s)return'upcoming';var l=s.toLowerCase().trim();if(l==='complete'||l==='completed')return'complete';if(l==='in progress')return'in-progress';if(l==='pre-bid')return'pre-bid';if(l==='on schedule')return'on-schedule';if(l==='on budget')return'on-budget';if(l.includes('below'))return'below-goal';if(l.includes('above')||l.includes('meeting'))return'meeting-goal';return'upcoming'}
+function safe(d,r,c){if(r>=0&&r<d.length&&c>=0&&c<d[r].length)return d[r][c];return null}
+function fmtDate(s){if(!s)return'';try{if(String(s).match(/20\d\d/)){var d=new Date(s);if(!isNaN(d))return(d.getMonth()+1)+'/'+d.getDate()+'/'+(d.getFullYear()%100)}}catch(e){}return String(s)}
+// Month-only format for construction schedule (e.g. "June 2027")
+function fmtMonth(s){if(!s)return'';var mos=['January','February','March','April','May','June','July','August','September','October','November','December'];try{var d=new Date(s);if(!isNaN(d))return mos[d.getMonth()]+' '+d.getFullYear()}catch(e){}return String(s)}
+// Search col for label — only used as fallback
+function findRow(rows,label,col){var lbl=label.toLowerCase();for(var i=0;i<rows.length;i++){if(getStr(safe(rows,i,col)).toLowerCase().includes(lbl))return i}return-1}
+// Collapsible section helpers
+var CHEV='<span class="chevron"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></span>';
+function togSec(el){var sec=el.closest('.section.collapsible');if(sec){sec.classList.toggle('collapsed');sec.classList.toggle('open')}}
+
+async function build(){
+var el=document.getElementById('dashboard');
+try{
+// ═══ ONLY FETCH DASHBOARD V2 — single source of truth ═══
+var d=await fetchSheet('DASHBOARD V2');
+// Also fetch backing tabs directly since cross-sheet formulas may return null via API
+var hlTab=await fetchSheet('Monthly Highlights');
+var schedTab=null;
+var coTab=await fetchSheet('Change Orders');
+var ccTab=null;try{ccTab=await fetchSheet('Construction Costs');}catch(ccErr){log('Construction Costs fetch failed: '+ccErr.message)}
+
+// Google Sheets drops Excel rows 1-2 (title + instruction)
+// So Excel row N → API row (N-3) since API is 0-based and rows 1-2 gone
+// But we also need to account for the section header rows which may or may not be present
+// Let's use label search as primary, with known offsets as fallback
+
+// Helper: find row by exact label in col 0
+function fr(label){var l=label.toLowerCase();for(var i=0;i<d.length;i++){if(getStr(safe(d,i,0)).toLowerCase().includes(l))return i}return-1}
+
+// ═══ PROJECT SUMMARY ═══
+var totalBudget=getNum(safe(d,fr('total project budget'),1));if(isNaN(totalBudget))totalBudget=659746834;
+var gmpValue=getNum(safe(d,fr('construction (gmp)'),1));if(isNaN(gmpValue)){gmpValue=getNum(safe(d,fr('gmp value'),1));if(isNaN(gmpValue))gmpValue=534130000}
+var softCosts=getNum(safe(d,fr('soft costs'),1));if(isNaN(softCosts))softCosts=totalBudget-gmpValue;
+var msbaGrant=getNum(safe(d,fr('msba grant'),1));if(isNaN(msbaGrant))msbaGrant=121700000;
+var spentToDate=getNum(safe(d,fr('spent to-date'),1));if(isNaN(spentToDate))spentToDate=10620812;
+var remaining=getNum(safe(d,fr('remaining'),1));if(isNaN(remaining))remaining=totalBudget-spentToDate;
+var spentPct=totalBudget>0?(spentToDate/totalBudget)*100:0;
+var scheduleStatus=getStr(safe(d,fr('schedule status'),1))||'ON SCHEDULE';
+var budgetStatus=getStr(safe(d,fr('budget status'),1))||'ON BUDGET';
+log('SUMMARY: total='+totalBudget+' gmp='+gmpValue+' spent='+spentToDate);
+
+// ═══ CONTINGENCIES — find header row then read 5 data rows ═══
+var contHdr=fr('utilization rate');if(contHdr<0)contHdr=fr('type');
+var contingencies=[];
+if(contHdr>=0){for(var i=contHdr+1;i<Math.min(contHdr+6,d.length);i++){
+  var name=getStr(safe(d,i,0)).trim();if(!name||name.toLowerCase().includes('spending'))break;
+  var total=getNum(safe(d,i,1));if(isNaN(total))break;
+  contingencies.push({label:name,total:total,utilized:getNum(safe(d,i,2))||0,remaining:getNum(safe(d,i,3)),rate:getPct(safe(d,i,4))})}}
+log('Contingencies: '+contingencies.length);
+
+// ═══ CHANGE ORDERS — from backing tab (incl. value as % of construction budget) ═══
+var coTotal=0,coPending=0,coApproved=0,coForecast=0,coTotalVal=0,coPendingVal=0,coApprovedVal=0,coForecastVal=0,coPctBudget=0;
+if(coTab&&coTab.length>0){
+  for(var i=0;i<coTab.length;i++){
+    var lbl=getStr(safe(coTab,i,0)).toLowerCase().trim();
+    if(lbl.indexOf('%')>=0||lbl.indexOf('percent')>=0||lbl.indexOf('of total construction')>=0){var pv=getPct(safe(coTab,i,2));if(!pv)pv=getPct(safe(coTab,i,1));coPctBudget=pv}
+    else if(lbl==='total change orders'||(lbl.indexOf('total change order')===0)){coTotal=getNum(safe(coTab,i,1))||0;coTotalVal=getNum(safe(coTab,i,2))||0}
+    else if(lbl.indexOf('pending')>=0){coPending=getNum(safe(coTab,i,1))||0;coPendingVal=getNum(safe(coTab,i,2))||0}
+    else if(lbl.indexOf('approved')>=0){coApproved=getNum(safe(coTab,i,1))||0;coApprovedVal=getNum(safe(coTab,i,2))||0}
+    else if(lbl.indexOf('forecast')>=0){coForecast=getNum(safe(coTab,i,1))||0;coForecastVal=getNum(safe(coTab,i,2))||0}
+  }
+}
+log('Change Orders: total='+coTotal+'/'+coTotalVal+' pending='+coPending+' approved='+coApproved+' pctBudget='+coPctBudget);
+
+// ═══ BUDGET CATEGORIES — find "Category" header then read rows ═══
+var catHdr=fr('category');var budgetCats=[],budgetTotalRow=null;
+// There might be multiple "Category" matches — we want the one near "Spending"
+var spendSec=fr('spending by category');if(spendSec>=0){for(var i=spendSec+1;i<d.length;i++){if(getStr(safe(d,i,0)).toLowerCase().includes('category')){catHdr=i;break}}}
+if(catHdr>=0){for(var i=catHdr+1;i<d.length;i++){
+  var name=getStr(safe(d,i,0)).trim();if(!name||name.toLowerCase().includes('erp'))break;
+  var b=getNum(safe(d,i,1));if(isNaN(b))break;
+  if(name.toUpperCase()==='TOTAL'){budgetTotalRow={budget:b,spent:getNum(safe(d,i,2))||0,remaining:getNum(safe(d,i,3)),pct:getPct(safe(d,i,4))};break}
+  budgetCats.push({name:name,budget:b,spent:getNum(safe(d,i,2))||0,remaining:getNum(safe(d,i,3)),pct:getPct(safe(d,i,4))})}}
+if(!budgetTotalRow)budgetTotalRow={budget:totalBudget,spent:spentToDate,remaining:remaining,pct:spentPct};
+log('Budget cats: '+budgetCats.length);
+
+// ═══ CONSTRUCTION COSTS — line-item breakdown from the 'Construction Costs' tab ═══
+// Header-agnostic: gviz can consume a header row, so we scan for any labelled row that carries
+// numeric budget/spent/remaining data and stop at the Total row.
+var directTrades=[],directOverhead=[],directSubtotal=null,directTotal=null;
+function isCCHeaderRow(n){var l=n.toLowerCase();return l==='category'||l==='budget'||l.indexOf('construction cost summary')>=0||l.indexOf('data entry')>=0||l.indexOf('do not edit')>=0||l.indexOf('blue =')>=0||l.indexOf('green =')>=0||l.indexOf('% spent')>=0}
+if(ccTab&&ccTab.length){
+  for(var i=0;i<ccTab.length;i++){
+    var nm=getStr(safe(ccTab,i,0)).trim();if(!nm||isCCHeaderRow(nm))continue;
+    var b=getNum(safe(ccTab,i,1)),sp=getNum(safe(ccTab,i,2)),rm=getNum(safe(ccTab,i,3));
+    if(isNaN(b)&&isNaN(sp)&&isNaN(rm))continue; // skip titles/instructions/blank rows (no numbers)
+    var row={name:nm,budget:b,spent:isNaN(sp)?0:sp,remaining:rm,pct:getPct(safe(ccTab,i,4))};
+    if(nm.toLowerCase()==='total'){directTotal=row;break}
+    directTrades.push(row);
+  }
+}
+// Fallback: if the Construction Costs tab was unavailable, use DASHBOARD V2 'DIRECT COST SUMMARY'
+if(directTrades.length===0){
+  var dcSec=fr('direct cost summary');
+  if(dcSec>=0){var dcHdr=-1;for(var di=dcSec+1;di<Math.min(dcSec+3,d.length);di++){if(getStr(safe(d,di,0)).toLowerCase().includes('category')){dcHdr=di;break}}
+  if(dcHdr>=0){for(var di=dcHdr+1;di<d.length;di++){
+    var dn=getStr(safe(d,di,0)).trim();if(!dn)break;
+    var db=getNum(safe(d,di,1));if(isNaN(db))continue;
+    var drow={name:dn,budget:db,spent:getNum(safe(d,di,2))||0,remaining:getNum(safe(d,di,3)),pct:getPct(safe(d,di,4))};
+    if(dn.toLowerCase()==='total'){directTotal=drow;break}
+    directTrades.push(drow);
+  }}}
+}
+log('Construction Costs: '+directTrades.length+' line items'+(directTotal?' (+total)':''));
+
+// ═══ ERP PACKAGES — find "Package" header in ERP section ═══
+var erpSec=fr('erp packages');var erpPkgs=[];
+if(erpSec>=0){var erpHdr=-1;for(var i=erpSec+1;i<Math.min(erpSec+3,d.length);i++){if(getStr(safe(d,i,0)).toLowerCase().includes('package')){erpHdr=i;break}}
+if(erpHdr>=0){for(var i=erpHdr+1;i<d.length;i++){
+  var name=getStr(safe(d,i,0)).trim();if(!name)break;if(name.toUpperCase().includes('TOTAL'))break;
+  var b=getNum(safe(d,i,1));if(isNaN(b))continue;
+  erpPkgs.push({name:name,budget:b,actual:getNum(safe(d,i,2)),variance:getNum(safe(d,i,3)),bidDate:getStr(safe(d,i,4)),status:getStr(safe(d,i,5))})}}}
+var erpTotalBud=0;for(var i=0;i<erpPkgs.length;i++){if(!isNaN(erpPkgs[i].budget))erpTotalBud+=erpPkgs[i].budget}
+log('ERP packages: '+erpPkgs.length);
+
+// ═══ QA/QC — find each label, value in col 3 (index 3) ═══
+var qaSec=fr('qa / qc');
+var totalRFIs=0,openRFIs=0,closedRFIs=0,totalSub=0,openSub=0,closedSub=0,totalDU=0,asis=0,prs=0,ccds=0;
+if(qaSec>=0){for(var i=qaSec+1;i<Math.min(qaSec+15,d.length);i++){
+  var lbl=getStr(safe(d,i,0)).toLowerCase().trim();var val=getNum(safe(d,i,3));if(isNaN(val))val=getNum(safe(d,i,1));if(isNaN(val))val=0;
+  if(lbl==='total rfis')totalRFIs=val;if(lbl.startsWith('open')&&totalRFIs>0&&openRFIs===0)openRFIs=val;if(lbl==='closed'&&totalRFIs>0&&closedRFIs===0)closedRFIs=val;
+  if(lbl==='total submittals')totalSub=val;if(lbl.startsWith('open')&&totalSub>=0&&openSub===0&&i>fr('total submittals'))openSub=val;
+  if(lbl.includes('total design'))totalDU=val;if(lbl==='asis')asis=val;if(lbl.startsWith('prs'))prs=val;if(lbl==='ccds')ccds=val;
+}}
+
+// ═══ MBE/WBE — find section, read 3 data rows ═══
+var mbeSec=fr('mbe / wbe');var mbeD={hours:0,goal:0,actual:0,status:''},wbeD={hours:0,goal:0,actual:0,status:''},vbeD={hours:0,goal:0,actual:0,status:''},totalManHours=0;
+if(mbeSec>=0){var mbeHdr=-1;for(var i=mbeSec+1;i<Math.min(mbeSec+3,d.length);i++){if(getStr(safe(d,i,0)).toLowerCase().includes('category')){mbeHdr=i;break}}
+if(mbeHdr>=0){
+  // Row mbeHdr+1=MBE, +2=WBE, +3=VBE
+  var r1=mbeHdr+1,r2=mbeHdr+2,r3=mbeHdr+3;
+  mbeD={hours:getNum(safe(d,r1,1))||0,goal:getNum(safe(d,r1,3))||0,actual:getNum(safe(d,r1,4))||0,status:getStr(safe(d,r1,5))};
+  wbeD={hours:getNum(safe(d,r2,1))||0,goal:getNum(safe(d,r2,3))||0,actual:getNum(safe(d,r2,4))||0,status:getStr(safe(d,r2,5))};
+  vbeD={hours:getNum(safe(d,r3,1))||0,goal:getNum(safe(d,r3,3))||0,actual:getNum(safe(d,r3,4))||0,status:getStr(safe(d,r3,5))};
+  // Total man hours
+  var tmhR=fr('total man hours');if(tmhR>=0)totalManHours=getNum(safe(d,tmhR,1))||0;
+}}
+log('MBE: h='+mbeD.hours+' g='+mbeD.goal+' WBE: h='+wbeD.hours);
+
+// ═══ PROJECT PHASES — read from Project Schedule backing tab ═══
+var phases=[];
+if(schedTab&&schedTab.length>0){
+  log('SchedTab: '+schedTab.length+' rows');
+  // Dump all rows for debug
+  for(var di=0;di<schedTab.length;di++){var rv=[];for(var dc=0;dc<schedTab[di].length;dc++){rv.push(dc+':'+getStr(safe(schedTab,di,dc)).substr(0,25))}log('sched['+di+']: '+rv.join(' | '))}
+  // Find the header row containing "Phase" and "Start" (or first row with phase-like data)
+  var shHdr=-1;
+  for(var i=0;i<schedTab.length;i++){
+    var c0=getStr(safe(schedTab,i,0)).toLowerCase();
+    // Header row has "Phase" in col 0 and another column with "Start"
+    if(c0.includes('phase')){
+      for(var cc=1;cc<schedTab[i].length;cc++){if(getStr(safe(schedTab,i,cc)).toLowerCase().includes('start')){shHdr=i;break}}
+      if(shHdr>=0)break;
+    }
+  }
+  // Fallback: find "Schematic" which is always the first data row
+  if(shHdr<0){for(var i=0;i<schedTab.length;i++){if(getStr(safe(schedTab,i,0)).toLowerCase().includes('schematic')){shHdr=i-1;break}}}
+  log('SchedTab header row: '+shHdr);
+  // If no header found, data starts at row 0 (API stripped header)
+  var dataStart=shHdr>=0?shHdr+1:0;
+  for(var i=dataStart;i<schedTab.length;i++){
+    var name=getStr(safe(schedTab,i,0)).trim();if(!name)break;
+    // Skip header-like rows
+    if(name.toLowerCase()==='phase')continue;
+    // Cols: 0=name, 1=start, 2=end, 3=status, 4=pct
+    var startVal=getStr(safe(schedTab,i,1));
+    var endVal=getStr(safe(schedTab,i,2));
+    var statusVal=getStr(safe(schedTab,i,3));
+    var pctVal=getPct(safe(schedTab,i,4));
+    if(statusVal.toLowerCase().includes('complete')&&!pctVal)pctVal=100;
+    phases.push({name:name,start:startVal,end:endVal,status:statusVal,pct:pctVal});
+    log('Phase: '+name+' start='+startVal+' end='+endVal+' status='+statusVal+' pct='+pctVal);
+  }
+}
+// Fallback: try DASHBOARD V2 if backing tab returned nothing useful
+if(phases.length===0){
+  var phSec=fr('project phases');
+  if(phSec>=0){for(var i=phSec+1;i<Math.min(phSec+10,d.length);i++){
+    var name=getStr(safe(d,i,0)).trim();if(!name||name.toLowerCase().includes('construction schedule'))break;
+    if(name.toLowerCase().includes('phase')&&name.toLowerCase().includes('start'))continue;
+    if(name.toLowerCase()==='phase')continue;
+    var pctVal=getPct(safe(d,i,4));
+    phases.push({name:name,start:'',end:'',status:'',pct:pctVal})
+  }}
+}
+log('Phases: '+phases.length);
+
+var curPhase='Upcoming',curPct=0;
+for(var j=0;j<phases.length;j++){if(phases[j].status.toLowerCase().includes('in progress')){curPhase=phases[j].name;curPct=phases[j].pct;break}}
+if(curPhase==='Upcoming'){for(var j=0;j<phases.length;j++){if(phases[j].pct>0&&phases[j].pct<100){curPhase=phases[j].name;curPct=phases[j].pct;break}}}
+log('Phases: '+phases.length+', current: '+curPhase);
+if(phases.length>0)log('Phase[0]: '+phases[0].name+' status='+phases[0].status+' pct='+phases[0].pct);
+if(phases.length===0&&phSec>=0){for(var i=phSec;i<Math.min(phSec+8,d.length);i++){var rv=[];for(var c=0;c<Math.min(6,d[i].length);c++)rv.push(c+':'+getStr(safe(d,i,c)).substr(0,25));log('ph-debug['+i+']: '+rv.join(' | '))}}
+
+// ═══ CONSTRUCTION P1 — find section header, skip Activity header, read data ═══
+var p1Activities=[],p2Activities=[];
+var p1Sec=fr('construction schedule - phase 1');
+if(p1Sec>=0){var p1Hdr=-1;for(var i=p1Sec+1;i<Math.min(p1Sec+3,d.length);i++){if(getStr(safe(d,i,0)).toLowerCase().includes('activity')){p1Hdr=i;break}}
+if(p1Hdr>=0){for(var i=p1Hdr+1;i<d.length;i++){
+  var name=getStr(safe(d,i,0)).trim();if(!name)break;if(name.toLowerCase().includes('construction schedule'))break;
+  // P1 activities: col 0=name, col 2=start, col 3=end, col 4=%
+  p1Activities.push({name:name,start:getStr(safe(d,i,2)),end:getStr(safe(d,i,3)),pct:getPct(safe(d,i,4))})}}}
+// P2
+var p2Sec=fr('construction schedule - phase 2');
+if(p2Sec>=0){var p2Hdr=-1;for(var i=p2Sec+1;i<Math.min(p2Sec+3,d.length);i++){if(getStr(safe(d,i,0)).toLowerCase().includes('activity')){p2Hdr=i;break}}
+if(p2Hdr>=0){for(var i=p2Hdr+1;i<d.length;i++){
+  var name=getStr(safe(d,i,0)).trim();if(!name)break;if(name.toLowerCase().includes('key milestones')||name.toLowerCase().includes('monthly'))break;
+  p2Activities.push({name:name,start:getStr(safe(d,i,2)),end:getStr(safe(d,i,3)),pct:getPct(safe(d,i,4))})}}}
+log('P1: '+p1Activities.length+', P2: '+p2Activities.length);
+
+// ═══ MILESTONES — find section, read rows ═══
+var milestones=[];var msSec=fr('key milestones');
+if(msSec>=0){var msHdr=-1;for(var i=msSec+1;i<Math.min(msSec+3,d.length);i++){if(getStr(safe(d,i,0)).toLowerCase().includes('date')){msHdr=i;break}}
+if(msHdr>=0){for(var i=msHdr+1;i<d.length;i++){
+  var dt=getStr(safe(d,i,0)).trim();if(!dt)break;if(dt.toLowerCase().includes('monthly'))break;
+  milestones.push({date:dt,name:getStr(safe(d,i,1)),status:getStr(safe(d,i,2))})}}}
+log('Milestones: '+milestones.length);
+
+// ═══ HIGHLIGHTS — Monthly Lookahead / Monthly Highlights / Community Impacts ═══
+var hlLook='',hlHigh='',hlComm='';
+function readHL(rows){if(!rows)return;for(var i=0;i<rows.length;i++){var lbl=getStr(safe(rows,i,0)).toLowerCase().trim();var val=getStr(safe(rows,i,1));if(!val)continue;
+ if(lbl.indexOf('lookahead')>=0)hlLook=val;
+ else if(lbl==='monthly highlights')hlHigh=val;
+ else if(lbl.indexOf('community')>=0||lbl.indexOf('impact')>=0)hlComm=val;}}
+readHL(d);readHL(hlTab);
+log('Highlights: look='+(hlLook?'YES':'NO')+' high='+(hlHigh?'YES':'NO')+' comm='+(hlComm?'YES':'NO'));
+
+// ═══ RENDER ═══
+var now=new Date();var mon=['January','February','March','April','May','June','July','August','September','October','November','December'];
+var upd=mon[now.getMonth()]+' '+now.getDate()+', '+now.getFullYear();
+
+// Donut
+var donutData=[];var donutColors=['#16513a','#234a7a','#6f93c0','#2a7a55','#3a5f8a','#3d8b6e','#9aa6b2','#b8c0b6','#1f3a5f'];
+for(var i=0;i<budgetCats.length;i++)donutData.push({label:budgetCats[i].name,value:budgetCats[i].budget,color:donutColors[i%donutColors.length],isGmp:budgetCats[i].name.toLowerCase().includes('construction budget')});
+var gmpPct=totalBudget>0?((gmpValue/totalBudget)*100).toFixed(0):'81';
+var CC=2*Math.PI*75,dSVG='',off=CC*0.25;
+for(var s=0;s<donutData.length;s++){var dd=totalBudget>0?(donutData[s].value/totalBudget)*CC:0;if(dd>0.5){dSVG+='<circle cx="100" cy="100" r="75" fill="none" stroke="'+donutData[s].color+'" stroke-width="26" stroke-dasharray="'+dd+' '+(CC-dd)+'" stroke-dashoffset="'+off+'" />';off-=dd}}
+
+// Budget table — with clickable Construction Cost row for direct cost breakdown
+var budgetTableHTML='';
+
+// Build direct cost dropdown HTML
+var dcDropHTML='';
+if(directTrades.length>0){
+dcDropHTML='<tr id="dc-dropdown-row" style="display:none"><td colspan="5" style="padding:0;border-bottom:none"><div style="border-left:3px solid var(--navy-light);margin:0 0 8px 10px;padding:12px 16px;background:var(--gray-50);border-radius:0 8px 8px 0"><table class="data-table" style="font-size:.82rem"><thead><tr><th style="font-size:.65rem">Trade / Line Item</th><th style="font-size:.65rem">Budget</th><th style="font-size:.65rem">Spent</th><th style="font-size:.65rem">Remaining</th><th style="font-size:.65rem;width:100px">% Spent</th></tr></thead><tbody>';
+for(var t=0;t<directTrades.length;t++){var dt=directTrades[t];var dps=dt.budget>0?(dt.spent/dt.budget*100):0;
+dcDropHTML+='<tr><td style="font-size:.80rem">'+dt.name+'</td><td>'+fmt$(dt.budget)+'</td><td>'+fmt$(dt.spent)+'</td><td>'+fmt$(dt.remaining)+'</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><span style="font-size:.72rem;color:var(--gray-400)">'+fmtPct(dps)+'</span><div class="progress-track" style="width:60px"><div class="progress-fill '+pCol(dps)+'" style="width:'+Math.min(dps,100)+'%"></div></div></div></td></tr>'}
+if(directSubtotal){var sps=directSubtotal.budget>0?(directSubtotal.spent/directSubtotal.budget*100):0;dcDropHTML+='<tr style="border-top:2px solid var(--navy);font-weight:700;color:var(--navy)"><td>'+directSubtotal.name+'</td><td>'+fmt$(directSubtotal.budget)+'</td><td>'+fmt$(directSubtotal.spent)+'</td><td>'+fmt$(directSubtotal.remaining)+'</td><td><span style="font-size:.72rem">'+fmtPct(sps)+'</span></td></tr>'}
+if(directOverhead.length>0){dcDropHTML+='<tr><td colspan="5" style="padding:16px 0 6px;border-bottom:none;font-size:.70rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--gray-400)">Construction Overhead & Markups</td></tr>';
+for(var o=0;o<directOverhead.length;o++){var doh=directOverhead[o];var ops=doh.budget>0?(doh.spent/doh.budget*100):0;
+dcDropHTML+='<tr><td style="font-size:.80rem">'+doh.name+'</td><td>'+fmt$(doh.budget)+'</td><td>'+fmt$(doh.spent)+'</td><td>'+fmt$(doh.remaining)+'</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end"><span style="font-size:.72rem;color:var(--gray-400)">'+fmtPct(ops)+'</span><div class="progress-track" style="width:60px"><div class="progress-fill '+pCol(ops)+'" style="width:'+Math.min(ops,100)+'%"></div></div></div></td></tr>'}}
+if(directTotal){var tps=directTotal.budget>0?(directTotal.spent/directTotal.budget*100):0;dcDropHTML+='<tr style="border-top:2px solid var(--navy);font-weight:700;color:var(--navy)"><td>'+directTotal.name+'</td><td>'+fmt$(directTotal.budget)+'</td><td>'+fmt$(directTotal.spent)+'</td><td>'+fmt$(directTotal.remaining)+'</td><td><span style="font-size:.72rem">'+fmtPct(tps)+'</span></td></tr>'}
+dcDropHTML+='</tbody></table></div></td></tr>'}
+
+for(var i=0;i<budgetCats.length;i++){var bc=budgetCats[i];var ps=bc.budget>0?(bc.spent/bc.budget*100):0;var isG=bc.name.toLowerCase().includes('construction budget')||bc.name.toLowerCase().includes('construction cost')||(gmpValue>0&&Math.abs(bc.budget-gmpValue)<1);
+if(isG&&directTrades.length>0){
+// Clickable Construction Cost row with toggle arrow
+budgetTableHTML+='<tr class="phase-toggle" id="const-toggle" onclick="var dd=document.getElementById(\'dc-dropdown-row\');if(dd.style.display===\'none\'){dd.style.display=\'table-row\';this.classList.add(\'open\')}else{dd.style.display=\'none\';this.classList.remove(\'open\')}" style="cursor:pointer"><td><span class="phase-name" style="font-weight:500;font-size:.86rem">'+bc.name+'</span><span class="type-badge gmp">CONST</span></td><td>'+fmt$(bc.budget)+'</td><td>'+fmt$(bc.spent)+'</td><td>'+fmt$(bc.remaining)+'</td><td><div style="display:flex;align-items:center;gap:8px;justify-content:flex-end"><span style="font-size:0.78rem;color:'+(ps>=100?'var(--green)':'var(--gray-400)')+'">'+fmtPct(ps)+'</span><div class="progress-track" style="width:80px"><div class="progress-fill '+pCol(ps)+'" style="width:'+Math.min(ps,100)+'%"></div></div></div></td></tr>';
+budgetTableHTML+=dcDropHTML;
+}else{
+budgetTableHTML+='<tr><td><span style="font-weight:500">'+bc.name+'</span>'+(isG?'<span class="type-badge gmp">CONST</span>':'<span class="type-badge soft">Soft</span>')+'</td><td>'+fmt$(bc.budget)+'</td><td>'+fmt$(bc.spent)+'</td><td>'+fmt$(bc.remaining)+'</td><td><div style="display:flex;align-items:center;gap:8px;justify-content:flex-end"><span style="font-size:0.78rem;color:'+(ps>=100?'var(--green)':'var(--gray-400)')+'">'+fmtPct(ps)+'</span><div class="progress-track" style="width:80px"><div class="progress-fill '+pCol(ps)+'" style="width:'+Math.min(ps,100)+'%"></div></div></div></td></tr>'}}
+if(budgetTotalRow){var tp=budgetTotalRow.budget>0?(budgetTotalRow.spent/budgetTotalRow.budget*100):0;budgetTableHTML+='<tr class="row-total"><td>Total</td><td>'+fmt$(budgetTotalRow.budget)+'</td><td>'+fmt$(budgetTotalRow.spent)+'</td><td>'+fmt$(budgetTotalRow.remaining)+'</td><td><div style="display:flex;align-items:center;gap:8px;justify-content:flex-end"><span style="font-size:0.78rem;font-weight:700;color:var(--navy)">'+fmtPct(tp)+'</span><div class="progress-track" style="width:80px"><div class="progress-fill fill-navy" style="width:'+Math.min(tp,100)+'%"></div></div></div></td></tr>'}
+
+// ERP table
+var erpHTML='';for(var i=0;i<erpPkgs.length;i++){var ep=erpPkgs[i];erpHTML+='<tr><td style="font-weight:500">'+ep.name+'</td><td>'+fmt$(ep.budget)+'</td><td>'+(!isNaN(ep.actual)&&ep.actual?fmt$(ep.actual):'—')+'</td><td>'+(ep.bidDate||'—')+'</td><td><span class="status-pill '+sCls(ep.status)+'">'+(ep.status||'Upcoming')+'</span></td></tr>'}
+erpHTML+='<tr class="row-total"><td>Total</td><td>'+fmt$(erpTotalBud)+'</td><td>—</td><td></td><td></td></tr>';
+
+// Activity table helper
+function actTbl(arr){var h='<table class="act-table"><thead><tr><th>Activity</th><th>Start</th><th>Finish</th><th style="width:120px">Progress</th><th>% Complete</th></tr></thead><tbody>';for(var i=0;i<arr.length;i++){var a=arr[i];h+='<tr><td class="act-name">'+a.name+'</td><td>'+fmtMonth(a.start)+'</td><td>'+fmtMonth(a.end)+'</td><td><div class="progress-track"><div class="progress-fill '+pCol(a.pct)+'" style="width:'+Math.min(a.pct,100)+'%"></div></div></td><td>'+fmtPct(a.pct,0)+'</td></tr>'}h+='</tbody></table>';return h}
+
+function gParse(s){if(s==null)return null;var t=String(s).trim();if(!t||t.toUpperCase()==='TBD')return null;var m=t.match(/(\d{4})[-\/.](\d{1,2})/);if(m)return new Date(+m[1],+m[2]-1,1);var mn=t.match(/([A-Za-z]{3,})\s+(\d{4})/);if(mn){var d2=new Date(mn[1]+' 1, '+mn[2]);if(!isNaN(d2))return d2}var dd=new Date(t);if(!isNaN(dd))return dd;return null}
+function gAbs(d){return d.getFullYear()*12+d.getMonth()}
+function buildGantt(p1,p2){var items=[],i;
+for(i=0;i<p1.length;i++)items.push({name:p1[i].name,s:gParse(p1[i].start),e:gParse(p1[i].end),pct:p1[i].pct,ph:1});
+for(i=0;i<p2.length;i++)items.push({name:p2[i].name,s:gParse(p2[i].start),e:gParse(p2[i].end),pct:p2[i].pct,ph:2});
+var valid=items.filter(function(x){return x.s&&x.e});var minA,maxA;
+if(valid.length){minA=Math.min.apply(null,valid.map(function(x){return gAbs(x.s)}));maxA=Math.max.apply(null,valid.map(function(x){return gAbs(x.e)}))}
+else{var ny=new Date().getFullYear();minA=ny*12;maxA=(ny+2)*12+11}
+if(maxA<=minA)maxA=minA+11;var span=maxA-minA+1;var y0=Math.floor(minA/12),y1=Math.floor(maxA/12);
+var ticks='';for(var y=y0;y<=y1;y++){var ms=Math.max(minA,y*12),me=Math.min(maxA,y*12+11);var w=(me-ms+1)/span*100;ticks+='<div class="fhg-tick" style="flex:0 0 '+w+'%">'+y+'</div>'}
+var gl='';for(var k=y0;k<=y1;k++)gl+='<div class="fhg-gl"></div>';
+var ta=gAbs(new Date())+(new Date().getDate()-1)/30;var tpc=(ta-minA)/span*100;var today=(tpc>=0&&tpc<=100)?'<div class="fhg-today" style="left:'+tpc+'%"></div>':'';
+function grows(arr,cls){var h='';for(var j=0;j<arr.length;j++){var x=arr[j];var bar='';if(x.s&&x.e){var l=(gAbs(x.s)-minA)/span*100;var bw=Math.max((gAbs(x.e)-gAbs(x.s)+1)/span*100,1.5);bar='<div class="fhg-bar '+cls+'" style="left:'+l+'%;width:'+bw+'%"><span>'+(x.pct>0?Math.round(x.pct)+'%':'')+'</span></div>'}h+='<div class="fhg-row"><div class="fhg-row-label" title="'+x.name+'">'+x.name+'</div><div class="fhg-track"><div class="fhg-grid">'+gl+'</div>'+today+bar+'</div></div>'}return h}
+var p1i=items.filter(function(x){return x.ph===1}),p2i=items.filter(function(x){return x.ph===2});var body='';
+if(p1i.length)body+='<div class="fhg-phase"><span class="fhg-key p1"></span>Phase 1 — New Building</div>'+grows(p1i,'p1');
+if(p2i.length)body+='<div class="fhg-phase"><span class="fhg-key p2"></span>Phase 2 — Site &amp; Demo</div>'+grows(p2i,'p2');
+var note=valid.length?'':'<div class="fhg-note">&#9203; Construction schedule dates are being finalized. Enter Start/End dates on the Construction Activities tab and this timeline will populate automatically.</div>';
+return '<div class="fhg-wrap"><div class="fhg">'+note+'<div class="fhg-head"><div class="fhg-spacer"></div><div class="fhg-axis">'+ticks+'</div></div>'+body+'</div></div>'}
+function pgAbs(s){var p=s.split('-');return (+p[0])*12+(+p[1]-1)}
+function buildProjectGantt(){
+var D0=pgAbs('2022-08'),D1=pgAbs('2028-11')+1,sp=D1-D0;
+function L(s){return (pgAbs(s)-D0)/sp*100}
+function W(s,e){return ((pgAbs(e)+1)-pgAbs(s))/sp*100}
+function R(s){return ((pgAbs(s)+1)-D0)/sp*100}
+var nd=new Date(),dim=new Date(nd.getFullYear(),nd.getMonth()+1,0).getDate();
+var tabs=nd.getFullYear()*12+nd.getMonth()+(nd.getDate()-1)/dim,tp=(tabs-D0)/sp*100;
+var ticks='',gl='';
+for(var y=2022;y<=2028;y++){var ms=Math.max(D0,y*12),me=Math.min(D1,y*12+12);if(me<=ms)continue;var w=(me-ms)/sp*100;ticks+='<div class="pg-tick" style="flex:0 0 '+w+'%">'+y+'</div>';gl+='<div class="pg-gl" style="flex:0 0 '+w+'%"></div>'}
+var tflag=(tp>=0&&tp<=100)?'<div class="pg-today-flag" style="left:'+tp+'%">TODAY</div>':'';
+var tline=(tp>=0&&tp<=100)?'<div class="pg-today" style="left:'+tp+'%"></div>':'';
+function track(inner){return '<div class="pg-track"><div class="pg-grid">'+gl+'</div>'+tline+inner+'</div>'}
+function bar(s,e,c,cls){return '<div class="pg-bar '+(cls||'')+'" style="left:'+L(s)+'%;width:'+W(s,e)+'%;background:'+c+'"></div>'}
+function mile(s,label){return '<div class="pg-ms" style="left:'+R(s)+'%"><div class="dia"></div></div><div class="pg-mslbl" style="left:'+R(s)+'%">'+label+'</div>'}
+function fmtMo(s){var p=s.split('-');return p[1]+'/'+p[0]}
+function dlab(s,e){var l=L(s),r=L(s)+W(s,e),txt=fmtMo(s)+' \u2013 '+fmtMo(e);return (r<=73)?'<div class="pg-dl" style="left:'+r+'%">'+txt+'</div>':'<div class="pg-dl right" style="left:'+l+'%">'+txt+'</div>'}
+function phaseRow(name,color,s,e,cls,barC){return '<div class="pg-row"><div class="pg-rl phase" style="color:'+color+'">'+name+'</div>'+track(bar(s,e,barC||color,cls)+dlab(s,e))+'</div>'}
+function subRow(name,s,e,c,extra){return '<div class="pg-row"><div class="pg-rl sub">'+name+'</div>'+track(bar(s,e,c,'')+dlab(s,e)+(extra||''))+'</div>'}
+var H='';
+H+=phaseRow('Forming the Team','#234a7a','2022-08','2023-02');
+H+=phaseRow('Feasibility Study','#3f72a8','2023-02','2024-02','umbrella');
+H+=subRow('Preliminary Design Program','2023-02','2023-08','#3f72a8');
+H+=subRow('Preferred Schematic Report','2023-07','2024-02','#6f93c0');
+H+=phaseRow('Schematic Design','#1f7a6b','2023-12','2024-08');
+H+=phaseRow('Funding the Project','#33598f','2024-08','2024-10','','#4f86c6');
+H+=phaseRow('Detailed Design','#2a7a55','2024-10','2026-02','umbrella');
+var dd=[['Design Development','2024-10','2025-04','#2a7a55'],['60% Construction Documents','2025-03','2025-08','#3a8a64'],['90% Construction Documents','2025-07','2025-11','#4a9b73'],['100% Construction Documents','2025-10','2026-02','#57a981'],['Bidding','2025-12','2026-02','#73bd98']];
+for(var i=0;i<dd.length;i++)H+=subRow(dd[i][0],dd[i][1],dd[i][2],dd[i][3]);
+H+=phaseRow('Construction','#16513a','2026-03','2028-11','umbrella');
+H+=subRow('Phase 1 \u2014 New Construction','2026-03','2028-02','#16513a',mile('2028-02','Move Into New Building'));
+H+=subRow('Phase 2 \u2014 Site Work &amp; Demo','2028-02','2028-11','#2a7a55',mile('2028-11','Site Complete'));
+var leg=[['Forming the Team','#234a7a'],['Feasibility Study','#3f72a8'],['Schematic Design','#1f7a6b'],['Funding the Project','#bf6a4a'],['Detailed Design','#2a7a55'],['Construction','#16513a']];
+var lg='';var msCap='';
+return '<div class="pg-wrap"><div class="pg"><div class="pg-head"><div class="pg-spacer"></div><div class="pg-axis">'+tflag+ticks+'</div></div>'+H+lg+msCap+'</div></div>';
+}
+var legendHTML='';for(var i=0;i<donutData.length;i++){if(donutData[i].value>0){var tl=donutData[i].isGmp?'Construction Cost':'Soft Cost';legendHTML+='<div class="legend-item"><div class="legend-swatch" style="background:'+donutData[i].color+'"></div><span class="legend-label">'+donutData[i].label+'</span><span class="legend-type">'+tl+'</span><span class="legend-value">'+fmtM(donutData[i].value)+'</span></div>'}}
+var msHTML='';for(var i=0;i<milestones.length;i++){var m=milestones[i];msHTML+='<div class="milestone-item"><div class="milestone-date">'+m.date+'</div><div class="milestone-name">'+m.name+'</div><div><span class="status-pill '+sCls(m.status)+'">'+(m.status||'Upcoming')+'</span></div></div>'}
+
+// ═══ HELPER: tooltip wrapper ═══
+function tip(term,def){return'<span class="tip">'+term+'<span class="tiptext">'+def+'</span></span>'}
+var TT={
+gmp:tip('Construction Cost','The contracted price for the construction work, performed by the General Contractor, CTA Construction Managers.'),
+erp:tip('ERP','Early Release Package — Bid packages released before the full construction documents are complete to accelerate the schedule.'),
+opm:tip('OPM','Owner\'s Project Manager — An independent firm hired to represent the owner\'s interests and oversee the project.'),
+ffe:tip('FF&amp;E','Furniture, Fixtures &amp; Equipment — Movable items such as desks, chairs, technology, and other equipment not permanently attached to the building.'),
+msba:tip('MSBA','Massachusetts School Building Authority — State agency that provides funding assistance for school construction projects.'),
+softcost:tip('Soft Costs','Non-construction expenses such as design fees, permits, insurance, project management, and other professional services.'),
+contingency:tip('Contingency','Funds set aside to cover unforeseen costs or risks during the project.'),
+holds:tip('Holds','Budget amounts reserved within the construction budget for items identified but not yet fully priced.'),
+allowances:tip('Allowances','Pre-determined budget amounts for work items where exact scope or pricing is not yet finalized.')
+};
+
+// ═══ DONUT — simplified to 4 slices ═══
+var ffeTotal=0,contTotal=0,otherSoft=0;
+for(var i=0;i<budgetCats.length;i++){var cn=budgetCats[i].name.toLowerCase();
+if(cn.includes('ff&e')||cn.includes('ffe')||cn.includes('technology'))ffeTotal+=budgetCats[i].budget;
+else if(cn.includes('soft cost contingency'))otherSoft+=budgetCats[i].budget;
+else if(cn.includes('contingency'))contTotal+=budgetCats[i].budget;
+else if(!cn.includes('construction budget'))otherSoft+=budgetCats[i].budget}
+var donut4=[{label:'Construction Cost',value:gmpValue,color:'#16513a'},
+{label:'Soft Costs',value:otherSoft,color:'#234a7a'},
+{label:'<span class="tip">FF&E / Technology<span class="tiptext">Furniture, Fixtures &amp; Equipment — Desks, chairs, technology, and other movable items not permanently attached to the building.</span></span>',value:ffeTotal,color:'#6f93c0'},
+{label:'Contingency',value:contTotal,color:'#9aa6b2'}];
+var CC4=2*Math.PI*75,dSVG4='',off4=CC4*0.25;
+for(var s=0;s<donut4.length;s++){var dd4=totalBudget>0?(donut4[s].value/totalBudget)*CC4:0;if(dd4>0.5){dSVG4+='<circle cx="100" cy="100" r="75" fill="none" stroke="'+donut4[s].color+'" stroke-width="26" stroke-dasharray="'+dd4+' '+(CC4-dd4)+'" stroke-dashoffset="'+off4+'" />';off4-=dd4}}
+var legend4='';for(var i=0;i<donut4.length;i++){if(donut4[i].value>0){var tl4=(i===0)?'Construction Cost':'Soft Cost';legend4+='<div class="legend-item"><div class="legend-swatch" style="background:'+donut4[i].color+'"></div><span class="legend-label">'+donut4[i].label+'</span><span class="legend-type">'+tl4+'</span><span class="legend-value">'+fmtM(donut4[i].value)+'</span></div>'}}
+
+// ═══ CONTINGENCIES — regroup ═══
+var gmpCont=null,holdsCont=null,allowCont=null,ownerConst=null,ownerSoft=null;
+for(var i=0;i<contingencies.length;i++){var cl=contingencies[i].label.toLowerCase();
+if((cl.includes('gmp contingency')||cl.includes("cm's contingency")||cl.includes('cm contingency')||(cl.includes('construction cost contingency')&&!cl.includes('owner')))&&!cl.includes('within'))gmpCont=contingencies[i];
+else if(cl.includes('holds'))holdsCont=contingencies[i];
+else if(cl.includes('allowances'))allowCont=contingencies[i];
+else if(cl.includes('owner')&&cl.includes('construction'))ownerConst=contingencies[i];
+else if(cl.includes('soft cost'))ownerSoft=contingencies[i]}
+var ownerCombTotal=(ownerConst?ownerConst.total:0);
+var ownerCombUtil=(ownerConst?ownerConst.utilized:0);
+var ownerCombRem=ownerCombTotal-ownerCombUtil;
+var ownerCombRate=ownerCombTotal>0?(ownerCombUtil/ownerCombTotal*100):0;
+
+// Town's Share
+var townsShare=totalBudget-msbaGrant;
+
+
+// ═══ FULL HTML ═══
+el.innerHTML=
+'<div class="header anim"><div class="header-top"><div><h1><span>Burlington Public Schools</span>Fox Hill Elementary School Building Project</h1><div class="updated">'+TT.msba+' Project &middot; OPM: Dore + Whittier Management Partners &middot; Architect: DiNisco Design &middot; General Contractor: CTA Construction Managers &middot; Data as of '+upd+'</div></div><div class="header-badges"><div class="header-badge"><div class="label">Total Project Budget</div><div class="value">'+fmtM(totalBudget)+'</div></div><div class="header-badge"><div class="label">'+TT.gmp+'</div><div class="value">'+fmtM(gmpValue)+'</div></div><div class="header-badge"><div class="label">'+TT.softcost+'</div><div class="value">'+fmtM(softCosts)+'</div></div><div class="header-badge"><div class="label">'+TT.msba+' Grant (Est.)</div><div class="value">'+fmtM(msbaGrant)+'</div></div><div class="header-badge"><div class="label">'+tip("Town\'s Share (Est.)","Estimated net cost to the Town. Does not include anticipated rebates.")+'</div><div class="value">'+fmtM(townsShare)+'</div></div></div></div></div>'+
+'<div class="stats-row"><div class="stat-card anim d1" onclick="document.getElementById(&quot;sec-schedule&quot;).scrollIntoView({behavior:&quot;smooth&quot;})" style="cursor:pointer"><div class="label">Schedule Status</div><div class="value" style="font-size:1.1rem"><span class="status-pill on-schedule">'+scheduleStatus+'</span></div><div class="sub">On track</div></div><div class="stat-card anim d2" onclick="document.getElementById(&quot;sec-budget&quot;).scrollIntoView({behavior:&quot;smooth&quot;})" style="cursor:pointer"><div class="label">Budget Status</div><div class="value" style="font-size:1.05rem"><span class="status-pill on-budget">'+budgetStatus+'</span></div><div class="sub">'+fmtPct(spentPct)+' spent of total budget</div></div><div class="stat-card anim d3" onclick="document.getElementById(&quot;sec-budget-detail&quot;).scrollIntoView({behavior:&quot;smooth&quot;})" style="cursor:pointer"><div class="label">Spent to Date</div><div class="value">'+fmtM(spentToDate)+'</div><div class="sub">of '+fmtM(totalBudget)+' total budget</div></div><div class="stat-card anim d4" onclick="document.getElementById(&quot;sec-budget-detail&quot;).scrollIntoView({behavior:&quot;smooth&quot;})" style="cursor:pointer"><div class="label">Budget Remaining</div><div class="value">'+fmtM(remaining)+'</div><div class="sub">'+fmtPct(totalBudget>0?(remaining/totalBudget*100):0)+' of budget remaining</div></div></div>'+
+'<div class="section anim d3" id="sec-budget"><div class="section-header"><h2>Total Project Budget Breakdown</h2><span class="pill">'+fmtM(totalBudget)+' Total</span></div><div class="section-body"><div class="donut-section"><div class="donut-container"><svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">'+dSVG4+'<text x="100" y="94" text-anchor="middle" font-family="DM Serif Display,serif" font-size="22" fill="#16513a">'+gmpPct+'%</text><text x="100" y="114" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="10" fill="#8d95a0">Construction</text></svg></div><div class="donut-legend">'+legend4+'</div></div></div></div>'+
+'<div class="section collapsible collapsed anim d4" id="sec-budget-detail"><div class="section-header" onclick="togSec(this)"><h2>Budget by Category — Spending to Date</h2>'+CHEV+'</div><div class="section-body" style="overflow-x:auto"><table class="data-table"><thead><tr><th>Category</th><th>Budget</th><th>Spent</th><th>Remaining</th><th style="width:140px">% Spent</th></tr></thead><tbody>'+budgetTableHTML+'</tbody></table><div class="footnotes">Click the <strong>Construction Budget</strong> row to expand the full trade-level cost breakdown.</div></div></div>'+
+'<div class="section collapsible collapsed anim d5"><div class="section-header" onclick="togSec(this)"><h2 class="ct-title">'+TT.contingency+' &amp; Change Orders</h2>'+CHEV+'</div><div class="section-body"><div class="contingency-grid">'+contingencies.map(function(c){var up=(c.rate>0&&c.rate<=1)?c.rate*100:c.rate;return '<div class="contingency-card"><div class="c-label">'+c.label+'</div><div class="c-value">'+fmtM(c.total)+'</div><div class="c-sub">Utilized: '+fmt$(c.utilized)+' &middot; Remaining: '+fmtM(c.remaining)+'</div><div class="progress-track"><div class="progress-fill fill-navy" style="width:'+(up||0)+'%"></div></div></div>'}).join('')+'</div>'+
+(function(){var hasData=coTotal>0||coPending>0||coApproved>0||coTotalVal>0;var approvedPct=coTotalVal>0?(coApprovedVal/coTotalVal*100):0;var pendingPct=coTotalVal>0?(coPendingVal/coTotalVal*100):0;return '<div class="co-tracker"><div class="co-title">Change Orders &mdash; '+coTotal+' Total'+(coTotalVal>0?' &middot; '+fmtM(coTotalVal):'')+'</div><div class="co-bar-wrap">'+(coApprovedVal>0?'<div class="co-bar-seg approved" style="width:'+approvedPct+'%"></div>':'')+(coPendingVal>0?'<div class="co-bar-seg pending" style="width:'+pendingPct+'%"></div>':'')+((!hasData)?'<div style="width:100%;display:flex;align-items:center;justify-content:center;font-size:.78rem;color:var(--gray-400)">No change orders to date</div>':'')+'</div><div class="co-legend"><div class="co-legend-item"><span class="co-dot approved"></span>Approved: <strong>'+coApproved+'</strong> &middot; '+fmtM(coApprovedVal)+'</div><div class="co-legend-item"><span class="co-dot pending"></span>Pending: <strong>'+coPending+'</strong> &middot; '+fmtM(coPendingVal)+'</div></div><div class="co-pct">Total change order value: <strong>'+fmtPct(coPctBudget)+'</strong> of total construction budget</div></div>'})()+'</div></div>'+
+'<div class="section collapsible collapsed anim d6" id="sec-schedule"><div class="section-header" onclick="togSec(this)"><h2>Construction Schedule</h2><span class="pill">'+scheduleStatus+'</span>'+CHEV+'</div><div class="section-body"><div class="sub-title">Project Timeline</div>'+buildGantt(p1Activities,p2Activities)+(p1Activities.length?'<div class="sub-title">Phase 1 — New Building Construction</div>'+actTbl(p1Activities):'')+(p2Activities.length?'<div class="sub-title">Phase 2 — Site Work &amp; Demolition</div>'+actTbl(p2Activities):'')+'<div class="footnotes">Start and finish dates and percent-complete values populate as the construction schedule is finalized through bidding and procurement.</div></div></div>'+
+'<div class="section collapsible open anim d7" id="sec-total-schedule"><div class="section-header" onclick="togSec(this)"><h2>Total Project Schedule</h2><span class="pill">Aug 2022 &ndash; Nov 2028</span>'+CHEV+'</div><div class="section-body">'+buildProjectGantt()+'</div></div>'+
+'<div class="section collapsible collapsed anim d9"><div class="section-header" onclick="togSec(this)"><h2>Monthly Highlights</h2><span class="pill">'+mon[now.getMonth()]+' '+now.getFullYear()+'</span>'+CHEV+'</div><div class="section-body"><div class="highlights-grid"><div class="highlight-card"><div class="h-label moment">Monthly Lookahead</div><p>'+(hlLook||'No update this month.')+'</p></div><div class="highlight-card"><div class="h-label positive">Monthly Highlights</div><p>'+(hlHigh||'No update this month.')+'</p></div><div class="highlight-card"><div class="h-label challenge">Community Impacts</div><p>'+(hlComm||'No update this month.')+'</p></div></div></div></div>'+
+'<div class="section collapsible collapsed anim d10"><div class="section-header" onclick="togSec(this)"><h2>Links &amp; Resources</h2>'+CHEV+'</div><div class="section-body"><div class="links-row"><span class="link-btn" style="opacity:0.5;cursor:default;pointer-events:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Monthly '+TT.opm+' Report</span><a class="link-btn" href="https://www.foxhillbuildingproject.com/construction" target="_blank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Progress Photo Gallery</a><span class="link-btn" style="opacity:0.5;cursor:default;pointer-events:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>Previous Updates</span></div></div></div>'+
+'<div class="footer">Fox Hill Elementary School Building Project &middot; Burlington, MA<br>For questions, visit <a href="https://www.foxhillbuildingproject.com" target="_blank">www.foxhillbuildingproject.com</a></div>';
+
+}catch(err){log('ERROR: '+err.message+'\n'+err.stack);el.innerHTML='<div class="error-msg"><strong>Unable to load dashboard data.</strong><br>Sheet ID: <code>'+SHEET_ID+'</code><br><small style="opacity:0.7;margin-top:8px;display:block">'+err.message+'</small><br><br><button class="debug-toggle" onclick="var d=document.getElementById(\'dbg2\');d.style.display=d.style.display===\'none\'?\'block\':\'none\'">Show Debug</button><pre class="debug-panel" id="dbg2" style="text-align:left">'+debugLog.join('\n')+'</pre></div>'}}
+build();
+function sendHeight(){var h=document.documentElement.scrollHeight;if(window.parent!==window){window.parent.postMessage({type:'lhs-resize',height:h},'*')}}
+window.addEventListener('load',function(){setTimeout(sendHeight,500);setTimeout(sendHeight,1500);setTimeout(sendHeight,3000)});window.addEventListener('resize',sendHeight);document.addEventListener('click',function(){setTimeout(sendHeight,400)});setInterval(sendHeight,2000);
+</script>
+</body>
+</html>
